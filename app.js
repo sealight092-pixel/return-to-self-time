@@ -703,16 +703,18 @@ function updateBreathingDisplay() {
     }, 1000);
   }
 
-  if (skipBreathingBtn) {
+if (skipBreathingBtn) {
   const skipBreathing = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     finishOnboarding();
   };
 
+  skipBreathingBtn.onclick = skipBreathing;
   skipBreathingBtn.addEventListener('click', skipBreathing);
-  skipBreathingBtn.addEventListener('touchstart', skipBreathing, { passive: false });
+  skipBreathingBtn.addEventListener('pointerup', skipBreathing);
+  skipBreathingBtn.addEventListener('touchend', skipBreathing, { passive: false });
 }
-
   body.classList.add('onboarding-active');
   showIntro();
 
