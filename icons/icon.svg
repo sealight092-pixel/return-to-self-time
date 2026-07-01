@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="90" fill="#141e3c"/>
+  <circle cx="256" cy="224" r="148" fill="none" stroke="#a8c8e8" stroke-width="1.5" opacity="0.25"/>
+  <circle cx="256" cy="224" r="110" fill="none" stroke="#a8c8e8" stroke-width="2" opacity="0.45"/>
+  <radialGradient id="g" cx="38%" cy="38%" r="62%">
+    <stop offset="0%" stop-color="#d4e8f4"/>
+    <stop offset="60%" stop-color="#7ba7bc"/>
+    <stop offset="100%" stop-color="#2c4080"/>
+  </radialGradient>
+  <circle cx="256" cy="224" r="72" fill="url(#g)"/>
+  <text x="256" y="408" text-anchor="middle" fill="#d4e8f4" font-size="38" font-family="sans-serif" font-weight="300" letter-spacing="3" opacity="0.85">小さな部屋</text>
+</svg>

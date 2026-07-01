@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf5ed">
+
+  <!-- PWA / ホーム画面追加（iOS） -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="自分に戻る時間">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <title>自分に戻る時間</title>
+</head>
+<body>
+<!-- 導入フロー -->
+<div id="intro-screen" class="onboarding-screen intro-screen">
+  <div class="intro-content">
+    <div class="intro-lotus">✿</div>
+    <h1 class="intro-main-title">Calm & Flow</h1>
+    <p class="intro-sub-title">わたしに、やさしい時間を。</p>
+  </div>
+</div>
+
+<div id="breathing-screen" class="onboarding-screen breathing-screen hidden">
+  <div class="breathing-guide-wrap">
+
+    <p class="guide-title">呼吸</p>
+    <p class="guide-subtitle">
+      ゆっくり深呼吸をして<br>
+      心を整えましょう
+    </p>
+
+    <div class="guide-circle" id="breathing-guide-circle">
+      <p class="guide-phase" id="breathing-guide-phase">吸って</p>
+      <p class="guide-count" id="breathing-guide-count">1</p>
+    </div>
+
+    <div class="breathing-actions">
+      <button id="btn-skip-breathing" class="guide-skip-btn">
+        呼吸をスキップ
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="message-screen" class="onboarding-screen message-screen hidden">
+  <div class="message-screen-inner">
+    <div class="message-screen-card">
+      <p class="message-screen-label">今日の一言</p>
+      <p class="message-screen-text" id="onboarding-message-text">
+        小さな一歩が、<br>未来の大きな自分を<br>つくっていきます。
+      </p>
+      <div class="message-screen-heart">♡</div>
+    </div>
+
+    <button id="btn-start-today" class="message-screen-start">今日はじめる</button>
+  </div>
+</div>
+
+ 
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <h1 class="app-title" id="header-title">自分に戻る時間</h1>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="app-main">
+
+    <!-- ===== ホーム ===== -->
+    <section id="page-home" class="page active">
+<div class="message-card home-message-card">
+  <p class="message-label">今日の一言</p>
+  <p class="message-text" id="home-daily-message">
+    小さな一歩が、<br>
+    未来の大きな自分を<br>
+    つくっていきます。
+  </p>
+</div>
+     
+<!-- ホームメニュー -->
+<div class="home-menu">
+  <p class="home-menu-label">今日は、どんな時間にしますか？</p>
+  <button class="home-menu-card" data-page="meditation">
+    <span class="home-menu-icon">🌙</span>
+    <span class="home-menu-text">
+      <span class="home-menu-title">瞑想する</span>
+      <span class="home-menu-desc">今の気分に合わせて、やさしく整える</span>
+    </span>
+  </button>
+
+  <button class="home-menu-card" data-page="stories">
+    <span class="home-menu-icon">✨</span>
+    <span class="home-menu-text">
+      <span class="home-menu-title">小話を聞く</span>
+      <span class="home-menu-desc">短い言葉で、心をゆるめる</span>
+    </span>
+  </button>
+
+  <button class="home-menu-card" data-page="journal">
+    <span class="home-menu-icon">📝</span>
+    <span class="home-menu-text">
+      <span class="home-menu-title">ジャーナルを書く</span>
+      <span class="home-menu-desc">今の気持ちを、静かに見つめる</span>
+    </span>
+  </button>
+
+  <button class="home-menu-card" data-page="voices">
+    <span class="home-menu-icon">💬</span>
+    <span class="home-menu-text">
+      <span class="home-menu-title">みんなの声</span>
+      <span class="home-menu-desc">体験や感想に、やさしく触れる</span>
+    </span>
+  </button>
+</div>    </section>
+
+    <!-- ===== 瞑想 ===== -->
+    <section id="page-meditation" class="page">
+      <p class="section-intro">今の自分に合う瞑想を選んでください</p>
+      <div id="meditation-quicknav" class="quick-nav"></div>
+      <div id="meditation-list" class="card-list"></div>
+    </section>
+
+    <!-- ===== 小話 ===== -->
+    <section id="page-stories" class="page">
+      <p class="section-intro">
+        RAYからの小話。<br>
+        音声でゆっくり聴いてください。
+      </p>
+      <div id="story-quicknav" class="quick-nav"></div>
+      <div id="story-list" class="card-list"></div>
+    </section>
+
+    <!-- ===== ジャーナル ===== -->
+    <section id="page-journal" class="page">
+
+      <!-- 今日の問い -->
+      <div class="journal-prompt-card">
+        <p class="prompt-label">今日の問い</p>
+        <p class="prompt-text" id="journal-prompt">読み込み中...</p>
+      </div>
+
+      <!-- 入力エリア -->
+      <label class="journal-label" for="journal-entry">
+        感じたこと、思ったことを自由に書いてください
+      </label>
+      <textarea
+        id="journal-entry"
+        class="journal-textarea"
+        placeholder="ここに書いてみましょう..."
+        rows="7"
+      ></textarea>
+
+      <div class="journal-actions">
+        <button class="btn btn-primary" id="btn-save-journal">保存する</button>
+        <button class="btn btn-secondary" id="btn-next-prompt">別の問いを見る</button>
+      </div>
+
+      <p class="journal-note">
+        書いた内容はこの端末の中にだけ保存されます。<br>
+        外部には一切送信されません。
+      </p>
+
+    </section>
+
+    <!-- ===== みんなの声 ===== -->
+    <section id="page-voices" class="page">
+      <p class="section-intro">
+        仲間たちの気づきや感想です。<br>
+        あなたの声も届けてください。
+      </p>
+      <a
+        href="#"
+        id="voices-form-link"
+        class="voices-form-btn"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        ✉&nbsp;&nbsp;感想・気づきを送る
+      </a>
+      <div id="voices-list" class="card-list"></div>
+    </section>
+
+  </main>
+
+  <!-- 音声プレーヤー（固定） -->
+  <div id="audio-player" class="audio-player hidden" role="region" aria-label="音声プレーヤー">
+    <p class="audio-title-text" id="audio-title-text">タイトル</p>
+    <div class="audio-controls">
+      <button class="btn-audio btn-play-pause" id="audio-play-pause">▶ 聴く</button>
+      <button class="btn-audio btn-audio-close" id="audio-close">✕ 閉じる</button>
+    </div>
+    <audio id="audio-element" preload="none"></audio>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ボトムナビゲーション -->
+  <nav class="bottom-nav" role="navigation" aria-label="メインナビゲーション">
+    <button class="nav-btn active" data-page="home" aria-label="ホーム">
+      <span class="nav-icon" aria-hidden="true">🏠</span>
+      <span class="nav-label">ホーム</span>
+    </button>
+    <button class="nav-btn" data-page="meditation" aria-label="瞑想">
+      <span class="nav-icon" aria-hidden="true">🌙</span>
+      <span class="nav-label">瞑想</span>
+    </button>
+    <button class="nav-btn" data-page="stories" aria-label="小話">
+      <span class="nav-icon" aria-hidden="true">✨</span>
+      <span class="nav-label">小話</span>
+    </button>
+    <button class="nav-btn" data-page="journal" aria-label="ジャーナル">
+      <span class="nav-icon" aria-hidden="true">📝</span>
+      <span class="nav-label">ジャーナル</span>
+    </button>
+    <button class="nav-btn" data-page="voices" aria-label="みんなの声">
+      <span class="nav-icon" aria-hidden="true">💬</span>
+      <span class="nav-label">みんなの声</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
