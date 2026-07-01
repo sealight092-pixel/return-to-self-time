@@ -704,8 +704,14 @@ function updateBreathingDisplay() {
   }
 
   if (skipBreathingBtn) {
-    skipBreathingBtn.addEventListener('click', finishOnboarding);
-  }
+  const skipBreathing = (event) => {
+    event.preventDefault();
+    finishOnboarding();
+  };
+
+  skipBreathingBtn.addEventListener('click', skipBreathing);
+  skipBreathingBtn.addEventListener('touchstart', skipBreathing, { passive: false });
+}
 
   body.classList.add('onboarding-active');
   showIntro();
