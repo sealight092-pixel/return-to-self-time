@@ -426,10 +426,17 @@ function setupListeners() {
 
   // カード内の再生ボタン（イベント委任）
   document.addEventListener('click', e => {
-    if (e.target.classList.contains('card-play-btn')) {
-      playAudio(e.target.dataset.url, e.target.dataset.title);
+  if (e.target.classList.contains('card-play-btn')) {
+    const url = e.target.dataset.url;
+
+    if (!url || url === '#') {
+      alert('この音声はまだ準備中です。');
+      return;
     }
-  });
+
+    window.open(url, '_blank');
+  }
+});
 
   // 目次リスト → 該当カードまでスムーズスクロール（イベント委任）
   document.addEventListener('click', e => {
