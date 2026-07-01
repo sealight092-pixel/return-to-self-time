@@ -1363,3 +1363,18 @@ body.onboarding-active .audio-player {
     0 8px 22px rgba(47, 95, 104, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
+/* =============================================
+   追加修正：呼吸スキップボタンを確実に押せるようにする
+   ============================================= */
+
+.breathing-actions {
+  position: relative;
+  z-index: 10002;
+}
+
+.guide-skip-btn {
+  position: relative;
+  z-index: 10003;
+  pointer-events: auto;
+  cursor: pointer;
+}
