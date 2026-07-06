@@ -67,5 +67,33 @@
     "description": "朝、今あるものに感謝を向ける瞑想",
     "audioUrl": "https://drive.google.com/file/d/1LHmvSV_pVdfk5DvPKk-MxJpF7Ip-X7Hb/preview",
     "duration": "約10分"
+  },  ,
+  {
+    "category": "night",
+    "title": "光で体を癒す",
+    "description": "夜、光に包まれて心身を癒す瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1W3fCtj5S2iwwzwNVIWmYy1UP_ftr9ypw/preview",
+    "duration": "約10分"
+  },
+  {
+    "category": "night",
+    "title": "光のシャワー",
+    "description": "夜、光のシャワーを浴びる瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1s6pzWWYzVd89U2sQfUUgwoFqC-titRAI/preview",
+    "duration": "約10分"
+  },
+  {
+    "category": "night",
+    "title": "自然の場所に行く",
+    "description": "夜、自然の中で深く休む瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1au1GnNWoyxSkprUgVLxE9PJOVA4-Ta_b/preview",
+    "duration": "約10分"
+  },
+  {
+    "category": "night",
+    "title": "預けて手放す",
+    "description": "夜、一日を手放して眠りにつく瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1o1lqXPosSVmxNQ-Pl2n513kivWlXZjBJ/preview",
+    "duration": "約10分"
   }
 ]
