@@ -54,5 +54,18 @@
     "description": "他の人のエネルギーから離れて、自分の中心に戻る",
     "audioUrl": "#",
     "duration": "約9分"
+  },  {
+    "category": "morning",
+    "title": "自分に優しさを向ける",
+    "description": "朝、自分にやさしさを向ける瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1kv0iBsQf8lj7_oSS4eGT_MHz4ylQNr6f/preview",
+    "duration": "約10分"
+  },
+  {
+    "category": "morning",
+    "title": "当たり前のものに感謝する",
+    "description": "朝、今あるものに感謝を向ける瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1LHmvSV_pVdfk5DvPKk-MxJpF7Ip-X7Hb/preview",
+    "duration": "約10分"
   }
 ]
