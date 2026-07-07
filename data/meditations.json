@@ -7,49 +7,35 @@
   "duration": "約10分"
 },
   {
-    "category": "anxiety",
+    "category": "テーマ別瞑想",
     "title": "不安が強いとき",
     "description": "不安な気持ちをそっと受け取り、呼吸とともに手放す",
     "audioUrl": "#",
     "duration": "約8分"
   },
   {
-    "category": "overthinking",
+    "category": "テーマ別瞑想",
     "title": "頭がぐるぐるするとき",
     "description": "思考の波から降りて、体の感覚に戻る",
     "audioUrl": "#",
     "duration": "約7分"
   },
   {
-    "category": "sleep",
-    "title": "寝る前にゆるみたいとき",
-    "description": "一日の緊張をそっとほどいて、眠りに向かう",
-    "audioUrl": "#",
-    "duration": "約12分"
-  },
-  {
-    "category": "reset",
+    "category": "テーマ別瞑想",
     "title": "気持ちをリセットしたいとき",
     "description": "今の自分をリセットして、また新しく始める",
     "audioUrl": "#",
     "duration": "約8分"
   },
   {
-    "category": "selfesteem",
+    "category": "テーマ別瞑想",
     "title": "自己肯定感を回復したいとき",
     "description": "自分の価値を思い出す、やさしい瞑想",
     "audioUrl": "#",
     "duration": "約10分"
   },
   {
-    "category": "release",
-    "title": "手放して眠りたいとき",
-    "description": "今日抱えていたものをそっと手放して、深い眠りへ",
-    "audioUrl": "#",
-    "duration": "約10分"
-  },
-  {
-    "category": "return",
+    "category": "テーマ別瞑想",
     "title": "人に振り回されたあと自分に戻りたいとき",
     "description": "他の人のエネルギーから離れて、自分の中心に戻る",
     "audioUrl": "#",
