@@ -1,20 +1,32 @@
 [
   {
-    "title": "先生から学んだこと",
-    "description": "RAYが出会った先生たちの言葉と、そこからの気づき。",
-    "audioUrl": "#",
+    "title": "すべては大丈夫",
+    "description": "心が少し軽くなる、安心についてのお話。",
+    "audioUrl": "https://drive.google.com/file/d/1bqIgtRQI6vxqrvbkYcCtbzZigzyi-Vsx/preview",
     "duration": "約5分"
   },
   {
-    "title": "「ありのままでいい」の本当の意味",
-    "description": "心理学と瞑想が教えてくれた、自己受容の話。",
-    "audioUrl": "#",
+    "title": "許すということ",
+    "description": "「許す」とは何かをやさしく見つめるお話。",
+    "audioUrl": "https://drive.google.com/file/d/1i0TG1zbZx-8q5qIzcJmdgnEpWRmC4TcC/preview",
     "duration": "約7分"
   },
   {
-    "title": "NHAから学んだこと",
-    "description": "自然な人間の本性（NHA）という視点からのお話。",
-    "audioUrl": "#",
+    "title": "今にあること",
+    "description": "「今、この瞬間」に戻るためのお話。",
+    "audioUrl": "https://drive.google.com/file/d/1G_SpMd808wuyCm7WR1nG2MoqQewHy5WS/preview",
+    "duration": "約6分"
+  },
+  {
+    "title": "自分を愛すること",
+    "description": "自分を大切にすることについてのお話。",
+    "audioUrl": "https://drive.google.com/file/d/1c1nq6Ki-TAq3RWLvkuP5STisWxTcTn5E/preview",
+    "duration": "約6分"
+  },
+  {
+    "title": "ありのまま受け入れる",
+    "description": "今の自分をそのまま受け入れることについてのお話。",
+    "audioUrl": "https://drive.google.com/file/d/1EpJ5xg29-PlVM3wzQqM7x9IlL5VwSKqL/preview",
     "duration": "約6分"
   }
 ]
