@@ -162,10 +162,23 @@ function renderMeditations() {
     groups[category].push(item);
   });
 
-  Object.keys(groups).forEach(category => {
-    const label = MEDITATION_CATEGORY_LABELS[category] || category;
-    const sectionId = `meditation-section-${category}`;
+  const categoryOrder = [
+  "朝の瞑想",
+  "気持ちに合わせて選ぶ",
+  "夜の瞑想"
+];
 
+categoryOrder
+  .filter(category => groups[category])
+  .forEach(category => {
+    const label = MEDITATION_CATEGORY_LABELS[category] || category;
+     
+    const sectionId = `meditation-section-${category}`;
+const icons = {
+  "朝の瞑想": "🌅",
+  "気持ちに合わせて選ぶ": "🌿",
+  "夜の瞑想": "🌙"
+};
     if (quicknav) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -184,7 +197,7 @@ function renderMeditations() {
 
     const heading = document.createElement('h3');
     heading.className = 'section-title';
-    heading.textContent = label;
+    heading.textContent = `${icons[category] || "🪷"} ${label}`;
     section.appendChild(heading);
 
     groups[category].forEach(item => {
