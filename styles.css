@@ -1545,3 +1545,60 @@ body.onboarding-active .audio-player {
   background: linear-gradient(135deg, #a978e8 0%, #8f5ed7 100%);
   box-shadow: 0 8px 20px rgba(143, 94, 215, 0.25);
 }
+/* ==========================================
+   小話ページ
+========================================== */
+
+/* 上部メッセージ */
+
+#page-stories .section-intro{
+    background:linear-gradient(135deg,#eef8ff,#f8fcff);
+    border-radius:22px;
+    padding:26px;
+    margin-bottom:18px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(70,120,180,.08);
+}
+
+#page-stories .section-intro h3{
+    font-size:32px;
+    margin:0;
+    color:#284b73;
+}
+
+#page-stories .section-intro p{
+    margin-top:8px;
+    color:#5e7992;
+}
+
+/* カード */
+
+#page-stories .content-card{
+
+    background:#fffdfa;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 22px rgba(0,0,0,.05);
+
+    margin-bottom:16px;
+
+    padding:22px;
+}
+
+/* ボタン */
+
+#page-stories .card-play-btn{
+
+    background:linear-gradient(135deg,#ffa642,#ff8b2d);
+
+    color:white;
+
+    border:none;
+
+    border-radius:999px;
+
+    padding:12px 28px;
+
+    font-weight:700;
+}
