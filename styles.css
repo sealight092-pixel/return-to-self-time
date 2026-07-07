@@ -1635,3 +1635,32 @@ header {
   white-space: normal;
   line-height: 1.5;
 }
+/* スマホでも瞑想カテゴリを横書きに固定 */
+@media (max-width: 768px) {
+  .meditation-category-card,
+  .meditation-category-card *,
+  .category-card,
+  .category-card *,
+  .meditation-tab,
+  .meditation-tab * {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+  }
+
+  .meditation-categories,
+  .category-tabs,
+  .meditation-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .meditation-category-card,
+  .category-card,
+  .meditation-tab {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 20px !important;
+    text-align: left !important;
+  }
+}
