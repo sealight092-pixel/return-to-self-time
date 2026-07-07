@@ -1377,33 +1377,96 @@ body.onboarding-active .audio-player {
   z-index: 10003;
   pointer-events: auto;
   cursor: pointer;
-}.section-title {
-  margin: 34px 0 18px;
-  padding: 14px 18px;
+}/* 瞑想ページ：上部案内カード */
+#page-meditation .section-intro {
+  margin: 8px 0 18px;
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(238, 249, 255, 0.95), rgba(255, 250, 244, 0.88));
+  box-shadow: 0 12px 30px rgba(80, 120, 130, 0.10);
+  color: #35566a;
+  font-weight: 600;
+}
+
+#page-meditation .section-intro::before {
+  content: "🌿 ";
+}
+
+/* 瞑想ページ：上の3つのメニュー */
+#page-meditation .quick-nav {
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+#page-meditation .quick-nav-item {
+  border: 1px solid rgba(255,255,255,0.82);
   border-radius: 18px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.72);
+  box-shadow: 0 8px 22px rgba(80, 120, 130, 0.08);
+}
+
+#page-meditation .quick-nav-item:nth-child(1) {
+  background: linear-gradient(135deg, rgba(255, 238, 210, 0.92), rgba(255, 250, 244, 0.86));
+}
+
+#page-meditation .quick-nav-item:nth-child(2) {
+  background: linear-gradient(135deg, rgba(218, 244, 229, 0.92), rgba(255, 250, 244, 0.86));
+}
+
+#page-meditation .quick-nav-item:nth-child(3) {
+  background: linear-gradient(135deg, rgba(234, 226, 250, 0.92), rgba(255, 250, 244, 0.86));
+}
+
+#page-meditation .quick-nav-item:nth-child(1)::before {
+  content: "🌅";
+  margin-right: 10px;
+}
+
+#page-meditation .quick-nav-item:nth-child(2)::before {
+  content: "🌿";
+  margin-right: 10px;
+}
+
+#page-meditation .quick-nav-item:nth-child(3)::before {
+  content: "🌙";
+  margin-right: 10px;
+}
+
+#page-meditation .quick-nav-label {
+  flex: 1;
+  font-weight: 600;
+}
+
+/* 瞑想ページ：見出し */
+.section-title {
+  margin: 36px 0 18px;
+  padding: 16px 20px;
+  border-radius: 20px;
   font-size: 18px;
   font-weight: 700;
   color: #35566a;
-  background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,250,244,0.72));
   box-shadow: 0 10px 28px rgba(80, 120, 130, 0.10);
 }
 
 .content-section:nth-of-type(1) .section-title {
-  background: linear-gradient(135deg, rgba(255, 238, 210, 0.95), rgba(255, 250, 244, 0.85));
+  background: linear-gradient(135deg, rgba(255, 238, 210, 0.95), rgba(255, 250, 244, 0.86));
 }
 
 .content-section:nth-of-type(2) .section-title {
-  background: linear-gradient(135deg, rgba(218, 244, 229, 0.95), rgba(255, 250, 244, 0.85));
+  background: linear-gradient(135deg, rgba(218, 244, 229, 0.95), rgba(255, 250, 244, 0.86));
 }
 
 .content-section:nth-of-type(3) .section-title {
-  background: linear-gradient(135deg, rgba(234, 226, 250, 0.95), rgba(255, 250, 244, 0.85));
+  background: linear-gradient(135deg, rgba(234, 226, 250, 0.95), rgba(255, 250, 244, 0.86));
 }
 
-.card-list {
-  gap: 22px;
+/* カード同士の余白 */
+.content-section .content-card {
+  margin-bottom: 18px;
 }
 
+/* 聴くボタンを少し大きく */
 .card-play-btn {
   padding: 14px 32px;
   min-height: 54px;
