@@ -2,8 +2,7 @@
    設定
    ============================================= */
 const CONFIG = {
-  // みんなの声フォームのURLをここに入れてください
-  voicesFormUrl: '#',
+  voicesFormUrl: 'https://forms.cloud.microsoft/r/TRF0TDuRkj',
 };
 
 const PAGE_TITLES = {
