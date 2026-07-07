@@ -154,37 +154,59 @@ function renderMeditations() {
     return;
   }
 
+  const groups = {};
+
   data.meditations.forEach(item => {
-    const cardId = `meditation-${item.category}`;
-    const label  = MEDITATION_CATEGORY_LABELS[item.category] || item.category;
+    const category = item.category || 'other';
+    if (!groups[category]) groups[category] = [];
+    groups[category].push(item);
+  });
+
+  Object.keys(groups).forEach(category => {
+    const label = MEDITATION_CATEGORY_LABELS[category] || category;
+    const sectionId = `meditation-section-${category}`;
 
     if (quicknav) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'quick-nav-item';
-      btn.dataset.target = cardId;
+      btn.dataset.target = sectionId;
       btn.innerHTML = `
         <span class="quick-nav-label">${escHtml(label)}</span>
-        <span class="quick-nav-arrow" aria-hidden="true">〉</span>
+        <span class="quick-nav-arrow" aria-hidden="true">›</span>
       `;
       quicknav.appendChild(btn);
     }
 
-    const card = document.createElement('div');
-    card.className = 'content-card';
-    card.id = cardId;
-    card.innerHTML = `
-      <div class="card-category">${escHtml(label)}</div>
-      <div class="card-title">${escHtml(item.title)}</div>
-      <div class="card-desc">${escHtml(item.description)}</div>
-      <div class="card-meta">${escHtml(item.duration)}</div>
-      <button class="card-play-btn"
-        data-url="${escAttr(item.audioUrl)}"
-        data-title="${escAttr(item.title)}">
-        ▶ 聴く
-      </button>
-    `;
-    list.appendChild(card);
+    const section = document.createElement('section');
+    section.className = 'content-section';
+    section.id = sectionId;
+
+    const heading = document.createElement('h3');
+    heading.className = 'section-title';
+    heading.textContent = label;
+    section.appendChild(heading);
+
+    groups[category].forEach(item => {
+      const cardId = `meditation-${item.category}-${item.title}`;
+
+      const card = document.createElement('div');
+      card.className = 'content-card';
+      card.id = cardId;
+      card.innerHTML = `
+        <div class="card-title">${escHtml(item.title)}</div>
+        <div class="card-desc">${escHtml(item.description)}</div>
+        <div class="card-meta">${escHtml(item.duration)}</div>
+        <button class="card-play-btn"
+          data-url="${escAttr(item.audioUrl)}"
+          data-title="${escAttr(item.title)}">
+          ▶ 聴く
+        </button>
+      `;
+      section.appendChild(card);
+    });
+
+    list.appendChild(section);
   });
 }
 
