@@ -1607,3 +1607,31 @@ body.onboarding-active .audio-player {
 
     font-weight:700;
 }
+/* iPhone PWA表示時の上部余白調整 */
+.app-header,
+.page-header,
+header {
+  padding-top: calc(env(safe-area-inset-top) + 18px);
+}
+
+/* 瞑想カテゴリカードを読みやすくする */
+.meditation-categories {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.meditation-category-card {
+  min-height: auto;
+  padding: 22px 20px;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+.meditation-category-card h3,
+.meditation-category-card .category-title {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  white-space: normal;
+  line-height: 1.5;
+}
