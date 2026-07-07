@@ -357,9 +357,14 @@ button {
    ============================================= */
 .section-intro {
   font-size: var(--text-base);
-  color: var(--text-mid);
+  color: var(--text-main);
   line-height: var(--leading);
-  padding: var(--sp-sm) 0 var(--sp-md);
+  padding: 18px 20px;
+  margin: 0 0 22px;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(92, 170, 170, 0.12);
+  text-align: center;
 }
 
 /* =============================================
