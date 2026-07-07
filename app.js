@@ -197,7 +197,7 @@ const icons = {
 
     const heading = document.createElement('h3');
     heading.className = 'section-title';
-    heading.textContent = `${icons[category] || "🪷"} ${label}`;
+    heading.textContent = `${icons[category] || "🌸"} ${label}`;
     section.appendChild(heading);
 
     groups[category].forEach(item => {
