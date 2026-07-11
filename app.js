@@ -8,7 +8,7 @@ const CONFIG = {
 const PAGE_TITLES = {
   home:       '自分に戻る時間',
   meditation: '瞑想',
-  stories:    '小話',
+  stories:    'ショートストーリー',
   journal:    'ジャーナル',
   voices:     'みんなの声',
 };
@@ -233,7 +233,7 @@ function renderStories() {
   if (quicknav) quicknav.innerHTML = '';
 
   if (data.stories.length === 0) {
-    list.innerHTML = '<p class="empty-msg">小話コンテンツを準備中です。</p>';
+    list.innerHTML = '<p class="empty-msg">ショートストーリーを準備中です。</p>';
     return;
   }
 
