@@ -163,7 +163,7 @@ function renderMeditations() {
 
   const categoryOrder = [
   "朝の瞑想",
-  "気持ちに合わせて選ぶ",
+  "気分で選ぶ",
   "夜の瞑想"
 ];
 
@@ -175,7 +175,7 @@ categoryOrder
     const sectionId = `meditation-section-${category}`;
 const icons = {
   "朝の瞑想": "🌅",
-  "気持ちに合わせて選ぶ": "🌿",
+  "気分で選ぶ": "🌿",
   "夜の瞑想": "🌙"
 };
     if (quicknav) {
