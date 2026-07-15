@@ -1,4 +1,4 @@
-const CACHE = 'small-room-v4';
+const CACHE = 'small-room-v5';
 
 const PRECACHE = [
   './',
