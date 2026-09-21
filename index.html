@@ -169,6 +169,10 @@
         外部には一切送信されません。
       </p>
 
+      <div class="journal-actions">
+        <button class="btn btn-secondary" id="btn-export-journal">これまでの記録を.txtで保存する</button>
+      </div>
+
     </section>
 
     <!-- ===== みんなの声 ===== -->
@@ -194,11 +198,12 @@
   <!-- 音声プレーヤー（固定） -->
   <div id="audio-player" class="audio-player hidden" role="region" aria-label="音声プレーヤー">
     <p class="audio-title-text" id="audio-title-text">タイトル</p>
+    <div class="audio-frame-wrap">
+      <iframe id="audio-frame" class="audio-frame" src="" allow="autoplay" title="音声プレーヤー"></iframe>
+    </div>
     <div class="audio-controls">
-      <button class="btn-audio btn-play-pause" id="audio-play-pause">▶ 聴く</button>
       <button class="btn-audio btn-audio-close" id="audio-close">✕ 閉じる</button>
     </div>
-    <audio id="audio-element" preload="none"></audio>
   </div>
 
   <!-- トースト通知 -->

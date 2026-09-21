@@ -45,7 +45,6 @@ const data = {
    状態
    ============================================= */
 let currentPromptIndex = 0;
-let isPlaying = false;
 let resizeBreathingCanvas = null;
 
 /* =============================================
@@ -314,6 +313,35 @@ function todayKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function exportJournal() {
+  const entries = Object.keys(localStorage)
+    .filter(key => /^journal-\d{4}-\d{2}-\d{2}$/.test(key))
+    .map(key => ({ date: key.replace('journal-', ''), text: localStorage.getItem(key) }))
+    .filter(entry => entry.text && entry.text.trim())
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  if (entries.length === 0) {
+    showToast('まだ記録がありません');
+    return;
+  }
+
+  const DIVIDER = '----------------------';
+  const body = entries
+    .map(entry => `日付: ${entry.date}\n\n${entry.text}`)
+    .join(`\n\n${DIVIDER}\n\n`);
+
+  const header = '自分に戻る時間\nジャーナルの記録\n\n' + DIVIDER + '\n\n';
+  const blob = new Blob([header + body], { type: 'text/plain; charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'journal.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 /* =============================================
    みんなの声
    ============================================= */
@@ -355,54 +383,22 @@ function playAudio(url, title) {
     return;
   }
 
-  const audio    = document.getElementById('audio-element');
-  const player   = document.getElementById('audio-player');
-  const titleEl  = document.getElementById('audio-title-text');
-  const playBtn  = document.getElementById('audio-play-pause');
-
-  // Google Drive 共有リンクを直接再生用URLに変換
-  let audioUrl = url;
-  const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (driveMatch) {
-    audioUrl = `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`;
-  }
+  const player  = document.getElementById('audio-player');
+  const titleEl = document.getElementById('audio-title-text');
+  const frame   = document.getElementById('audio-frame');
 
   if (titleEl) titleEl.textContent = title;
-  audio.src = audioUrl;
-  audio.play().catch(() => showToast('音声の再生に失敗しました'));
+  // アプリ内で完結させるため、別タブを開かずGoogle Driveのプレーヤーを埋め込む
+  if (frame) frame.src = url;
 
-  isPlaying = true;
-  if (playBtn) playBtn.textContent = '⏸ 一時停止';
   player.classList.remove('hidden');
   document.querySelector('.app-main').classList.add('audio-open');
-
-  audio.onended = () => {
-    isPlaying = false;
-    if (playBtn) playBtn.textContent = '▶ 聴く';
-  };
-}
-
-function togglePlayPause() {
-  const audio   = document.getElementById('audio-element');
-  const playBtn = document.getElementById('audio-play-pause');
-  if (!audio) return;
-
-  if (isPlaying) {
-    audio.pause();
-    isPlaying = false;
-    if (playBtn) playBtn.textContent = '▶ 聴く';
-  } else {
-    audio.play().catch(() => showToast('音声の再生に失敗しました'));
-    isPlaying = true;
-    if (playBtn) playBtn.textContent = '⏸ 一時停止';
-  }
 }
 
 function closeAudio() {
-  const audio  = document.getElementById('audio-element');
   const player = document.getElementById('audio-player');
-  if (audio) { audio.pause(); audio.src = ''; }
-  isPlaying = false;
+  const frame  = document.getElementById('audio-frame');
+  if (frame) frame.src = '';
   if (player) player.classList.add('hidden');
   document.querySelector('.app-main').classList.remove('audio-open');
 }
@@ -415,7 +411,7 @@ function showToast(message) {
   if (!toast) return;
   toast.textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
 /* =============================================
@@ -451,10 +447,10 @@ function setupListeners() {
     ?.addEventListener('click', saveJournal);
   document.getElementById('btn-next-prompt')
     ?.addEventListener('click', nextPrompt);
+  document.getElementById('btn-export-journal')
+    ?.addEventListener('click', exportJournal);
 
   // 音声プレーヤー操作
-  document.getElementById('audio-play-pause')
-    ?.addEventListener('click', togglePlayPause);
   document.getElementById('audio-close')
     ?.addEventListener('click', closeAudio);
 
@@ -462,13 +458,14 @@ function setupListeners() {
   document.addEventListener('click', e => {
   if (e.target.classList.contains('card-play-btn')) {
     const url = e.target.dataset.url;
+    const title = e.target.dataset.title;
 
     if (!url || url === '#') {
-      alert('この音声はまだ準備中です。');
+      showToast('この音声はまだ準備中です');
       return;
     }
 
-    window.open(url, '_blank');
+    playAudio(url, title);
   }
 });
 

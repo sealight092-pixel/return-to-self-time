@@ -684,6 +684,20 @@ button {
   line-height: var(--leading);
 }
 
+.audio-frame-wrap {
+  margin-bottom: var(--sp-sm);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.audio-frame {
+  width: 100%;
+  height: 100px;
+  border: none;
+  display: block;
+  background: transparent;
+}
+
 .audio-controls {
   display: flex;
   gap: var(--sp-sm);
@@ -705,13 +719,8 @@ button {
   opacity: 0.8;
 }
 
-.btn-play-pause {
-  background-color: var(--sky-light);
-  color: var(--text-dark);
-}
-
 .btn-audio-close {
-  flex: 0 0 88px;
+  flex: 1;
   background-color: transparent;
   color: var(--sky-pale);
   border: 1px solid rgba(255, 255, 255, 0.28);
