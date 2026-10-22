@@ -1,4 +1,4 @@
-const CACHE = 'small-room-v6';
+const CACHE = 'small-room-v7';
 
 const PRECACHE = [
   './',
@@ -15,7 +15,9 @@ const PRECACHE = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(PRECACHE))
+    caches.open(CACHE).then(cache =>
+      cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'reload' })))
+    )
   );
   self.skipWaiting();
 });
