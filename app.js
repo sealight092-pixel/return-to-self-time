@@ -507,6 +507,7 @@ document.addEventListener('DOMContentLoaded', init);
 /* ========================================
    ホーム：毎日届くメッセージ
    3カテゴリーを交互に表示（各30本・90日で一巡）
+   2026年11月1日（日本時間）から追加60本を先に表示
    小さな実験 → 受け取る → 問いかけ
    ======================================== */
 
@@ -611,6 +612,10 @@ const DAILY_MESSAGES = {
   ]
 };
 
+// getJstDayNumber() と同じ、日本時間の日付を表す通算日。
+const NEW_DAILY_MESSAGES_START_DAY = Date.UTC(2026, 10, 1) / 86400000;
+const ORIGINAL_DAILY_MESSAGES_PER_GROUP = 10;
+
 function getJstDayNumber() {
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
@@ -632,8 +637,18 @@ function getTodayDailyMessage() {
   ];
 
   const dayNumber = getJstDayNumber();
-  const group = groups[dayNumber % groups.length];
-  const messageIndex = Math.floor(dayNumber / groups.length) % group.length;
+  const daysSinceStart = dayNumber - NEW_DAILY_MESSAGES_START_DAY;
+
+  // 10月31日までは、従来の30本をこれまでと同じ順序で表示する。
+  if (daysSinceStart < 0) {
+    const group = groups[dayNumber % groups.length];
+    const messageIndex = Math.floor(dayNumber / groups.length) % ORIGINAL_DAILY_MESSAGES_PER_GROUP;
+    return group[messageIndex];
+  }
+
+  // 11月1日を追加分の初日にし、追加60本 → 従来30本の順で一巡する。
+  const group = groups[daysSinceStart % groups.length];
+  const messageIndex = (ORIGINAL_DAILY_MESSAGES_PER_GROUP + Math.floor(daysSinceStart / groups.length)) % group.length;
 
   return group[messageIndex];
 }
