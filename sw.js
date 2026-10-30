@@ -1,4 +1,4 @@
-const CACHE = 'small-room-v10';
+const CACHE = 'small-room-v11';
 
 const PRECACHE = [
   './',
@@ -9,6 +9,7 @@ const PRECACHE = [
   './data/messages.json',
   './data/meditations.json',
   './data/stories.json',
+  './data/scheduled-audio.json',
   './data/journal-prompts.json',
   './data/voices.json',
 ];

@@ -1,0 +1,51 @@
+{
+  "meditations": [
+    {
+      "category": "気分で選ぶ",
+      "title": "もう頑張れないと感じたとき",
+      "description": "頑張り続けて疲れた心に、休んでもいいという許可を届ける瞑想",
+      "audioUrl": "https://drive.google.com/file/d/1mNK00IL-58p4MqYOnJLvihJsl9SE4Gkj/preview",
+      "duration": "約8分",
+      "availableFrom": "2026-11-01"
+    },
+    {
+      "category": "気分で選ぶ",
+      "title": "怒りや悔しさが消えないとき",
+      "description": "怒りを無理に消さずに受けとめ、自分の境界を大切にする瞑想",
+      "audioUrl": "https://drive.google.com/file/d/16StjHgadTwDst91v5o3SeEt-WAzWGgeE/preview",
+      "duration": "約8分",
+      "availableFrom": "2026-11-01"
+    },
+    {
+      "category": "気分で選ぶ",
+      "title": "たった3分、自分に戻る",
+      "description": "忙しい日にも呼吸と体の感覚に戻る、短い瞑想",
+      "audioUrl": "https://drive.google.com/file/d/1YC8CjG7UVtAJExeoBnOqeueavc_dGpx0/preview",
+      "duration": "約3分",
+      "availableFrom": "2026-11-01"
+    }
+  ],
+  "stories": [
+    {
+      "title": "アーミッシュの許しについて",
+      "description": "悲劇のあとにアーミッシュの人々が示した、許しとコミュニティの力についてのお話。",
+      "audioUrl": "https://drive.google.com/file/d/1LxZTPHNqZ6aOw55RNaJx_oo36SgGl9H2/preview",
+      "duration": "約8分",
+      "availableFrom": "2026-11-01"
+    },
+    {
+      "title": "本当の豊かさとは？ ― オプラ・ウィンフリー",
+      "description": "物質的な豊かさと心の豊かさ。その両方を大切にする生き方について。",
+      "audioUrl": "https://drive.google.com/file/d/1F6qwTAduX9z5XnC0g0MJm_8-sf4PfZrL/preview",
+      "duration": "約7分",
+      "availableFrom": "2026-11-01"
+    },
+    {
+      "title": "変化の可能性 ― ジョー・ディスペンザ",
+      "description": "ワークショップでの体験を通して、人が変わっていく可能性を見つめるお話。",
+      "audioUrl": "https://drive.google.com/file/d/1iW2Iqj7JlOPIIqNnkDaJbI2Iw_7j3S1w/preview",
+      "duration": "約7分",
+      "availableFrom": "2026-11-01"
+    }
+  ]
+}

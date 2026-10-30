@@ -39,6 +39,7 @@ const data = {
   stories:        [],
   journalPrompts: [],
   voices:         [],
+  scheduledAudio: { meditations: [], stories: [] },
 };
 
 /* =============================================
@@ -46,6 +47,7 @@ const data = {
    ============================================= */
 let currentPromptIndex = 0;
 let resizeBreathingCanvas = null;
+let renderedAudioAvailability = null;
 
 /* =============================================
    データ読み込み
@@ -57,6 +59,7 @@ async function loadData() {
     ['stories',        'data/stories.json'],
     ['journalPrompts', 'data/journal-prompts.json'],
     ['voices',         'data/voices.json'],
+    ['scheduledAudio', 'data/scheduled-audio.json'],
   ];
 
   const results = await Promise.allSettled(
@@ -71,6 +74,41 @@ async function loadData() {
       console.warn(`${files[i][1]} の読み込みに失敗しました`);
     }
   });
+
+  data.meditations = mergeAudioCatalog(data.meditations, data.scheduledAudio.meditations || []);
+  data.stories = mergeAudioCatalog(data.stories, data.scheduledAudio.stories || []);
+  refreshScheduledAudioContent();
+}
+
+// 通常データにも同じ音声が入った場合は、二重に表示しない。
+function mergeAudioCatalog(baseItems, scheduledItems) {
+  const itemsByUrl = new Map(baseItems.map(item => [item.audioUrl, item]));
+  scheduledItems.forEach(item => {
+    const existing = itemsByUrl.get(item.audioUrl);
+    itemsByUrl.set(item.audioUrl, existing
+      ? { ...item, ...existing, availableFrom: item.availableFrom }
+      : item);
+  });
+  return Array.from(itemsByUrl.values());
+}
+
+function isAudioAvailable(item) {
+  if (!item.availableFrom) return true;
+  const [year, month, day] = item.availableFrom.split('-').map(Number);
+  const releaseDay = Date.UTC(year, month - 1, day) / 86400000;
+  return getJstDayNumber() >= releaseDay;
+}
+
+// 公開対象が変わったときだけ一覧を更新し、同日中の再生を妨げない。
+function refreshScheduledAudioContent() {
+  const signature = JSON.stringify([
+    data.meditations.filter(isAudioAvailable),
+    data.stories.filter(isAudioAvailable),
+  ]);
+  if (signature === renderedAudioAvailability) return;
+  renderMeditations();
+  renderStories();
+  renderedAudioAvailability = signature;
 }
 
 /* =============================================
@@ -148,14 +186,15 @@ function renderMeditations() {
   list.innerHTML = '';
   if (quicknav) quicknav.innerHTML = '';
 
-  if (data.meditations.length === 0) {
+  const availableMeditations = data.meditations.filter(isAudioAvailable);
+  if (availableMeditations.length === 0) {
     list.innerHTML = '<p class="empty-msg">瞑想コンテンツを準備中です。</p>';
     return;
   }
 
   const groups = {};
 
-  data.meditations.forEach(item => {
+  availableMeditations.forEach(item => {
     const category = item.category || 'other';
     if (!groups[category]) groups[category] = [];
     groups[category].push(item);
@@ -232,12 +271,13 @@ function renderStories() {
   list.innerHTML = '';
   if (quicknav) quicknav.innerHTML = '';
 
-  if (data.stories.length === 0) {
+  const availableStories = data.stories.filter(isAudioAvailable);
+  if (availableStories.length === 0) {
     list.innerHTML = '<p class="empty-msg">ショートストーリーを準備中です。</p>';
     return;
   }
 
-  data.stories.forEach((item, i) => {
+  availableStories.forEach((item, i) => {
     const cardId = `story-${i}`;
 
     if (quicknav) {
@@ -711,12 +751,14 @@ function scheduleDailyMessageRefresh() {
   const delay = Math.max(0, nextMidnightUtc - Date.now()) + 100;
   dailyMessageRefreshTimer = setTimeout(() => {
     renderHomeDailyMessage();
+    refreshScheduledAudioContent();
     scheduleDailyMessageRefresh();
   }, delay);
 }
 
 function refreshDailyMessageSchedule() {
   renderHomeDailyMessage();
+  refreshScheduledAudioContent();
   scheduleDailyMessageRefresh();
 }
 
