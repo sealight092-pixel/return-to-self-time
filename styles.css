@@ -1673,3 +1673,151 @@ header {
     text-align: left !important;
   }
 }
+
+/* 追加音声のお知らせ */
+#release-notice[hidden],
+#release-audio-entry[hidden] {
+  display: none !important;
+}
+.release-notice {
+  margin: 0 0 24px;
+  padding: 26px 22px 14px;
+  border: 1px solid #dfc4a0;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #fff8e9, #fffdf8);
+  box-shadow: 0 8px 24px rgba(114, 81, 42, 0.09);
+  color: #4c3c31;
+  text-align: left;
+}
+.release-notice-date,
+.release-page-date {
+  margin: 0 0 10px;
+  color: #795530;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.release-notice h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  line-height: 1.55;
+  color: #4c3c31;
+}
+.release-notice-description {
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.85;
+}
+.release-primary {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #87603d;
+  color: #fff;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.release-primary:hover {
+  background: #714d2f;
+}
+.release-primary:disabled,
+.release-entry:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.release-notice-help {
+  margin: 10px 0 4px;
+  color: #725d4c;
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: center;
+}
+.release-dismiss {
+  display: block;
+  min-height: 44px;
+  margin: 0 auto;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: #725d4c;
+  font: inherit;
+  font-size: 15px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.release-entry {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid #dfc4a0;
+  border-radius: 16px;
+  background: #fff9ed;
+  color: #68492e;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.release-status {
+  margin: 0;
+  color: #884b36;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.release-status:empty {
+  display: none;
+}
+.release-status:not(:empty) {
+  margin: 0 0 20px;
+}
+.release-primary:focus-visible,
+.release-dismiss:focus-visible,
+.release-entry:focus-visible,
+.release-home-btn:focus-visible {
+  outline: 3px solid #376d80;
+  outline-offset: 4px;
+}
+.release-page-heading {
+  margin: 0 0 14px;
+  color: #4c3c31;
+  font-size: 24px;
+  line-height: 1.6;
+}
+.release-list .content-card {
+  padding: 20px;
+}
+.release-list .card-title,
+.release-list .card-desc,
+.release-list .card-meta {
+  padding-right: 0;
+}
+.release-list .card-play-btn {
+  align-self: flex-start;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 12px 26px;
+}
+.release-home-btn {
+  min-height: 48px;
+  margin-top: 8px;
+}
+@media (max-width: 380px) {
+  .release-notice { padding: 22px 18px 12px; }
+  .release-notice h2 { font-size: 21px; }
+}
+
+.release-list .content-section .card-play-btn {
+  background: #87603d;
+  color: #fff;
+  box-shadow: none;
+}

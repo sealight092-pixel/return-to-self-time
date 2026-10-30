@@ -5,12 +5,18 @@ const CONFIG = {
   voicesFormUrl: 'https://forms.cloud.microsoft/r/TRF0TDuRkj',
 };
 
+const AUDIO_RELEASE_NOTICE = {
+  id: '2026-11-audio',
+  availableFrom: '2026-11-01',
+};
+
 const PAGE_TITLES = {
   home:       '自分に戻る時間',
   meditation: '瞑想',
   stories:    'ショートストーリー',
   journal:    'ジャーナル',
   voices:     'みんなの声',
+  updates:    '新しい音声',
 };
 
 const MESSAGE_TYPE_LABELS = {
@@ -48,11 +54,13 @@ const data = {
 let currentPromptIndex = 0;
 let resizeBreathingCanvas = null;
 let renderedAudioAvailability = null;
+let releaseNoticeSeenThisSession = false;
+let releaseAudioLoading = false;
 
 /* =============================================
    データ読み込み
    ============================================= */
-async function loadData() {
+async function loadData({ forceRefresh = false } = {}) {
   const files = [
     ['messages',       'data/messages.json'],
     ['meditations',    'data/meditations.json'],
@@ -63,7 +71,7 @@ async function loadData() {
   ];
 
   const results = await Promise.allSettled(
-    files.map(([, path]) => fetch(path).then(r => r.json()))
+    files.map(([, path]) => fetch(path, forceRefresh ? { cache: 'reload' } : undefined).then(r => r.json()))
   );
 
   results.forEach((result, i) => {
@@ -101,6 +109,7 @@ function isAudioAvailable(item) {
 
 // 公開対象が変わったときだけ一覧を更新し、同日中の再生を妨げない。
 function refreshScheduledAudioContent() {
+  renderReleaseNotice();
   const signature = JSON.stringify([
     data.meditations.filter(isAudioAvailable),
     data.stories.filter(isAudioAvailable),
@@ -132,6 +141,7 @@ function navigateTo(pageId) {
   if (pageId === 'stories')    renderStories();
   if (pageId === 'journal')    renderJournal();
   if (pageId === 'voices')     renderVoices();
+  if (pageId === 'updates')    return renderReleaseAudioPage();
 }
 
 /* =============================================
@@ -165,6 +175,7 @@ function startBreathing() {
    ============================================= */
 function renderHome() {
   renderHomeDailyMessage();
+  renderReleaseNotice();
   if (resizeBreathingCanvas) resizeBreathingCanvas();
   if (data.messages.length === 0) return;
 
@@ -307,6 +318,130 @@ function renderStories() {
     `;
     list.appendChild(card);
   });
+}
+
+/* =============================================
+   11月の追加音声のお知らせ
+   ============================================= */
+function hasSeenReleaseNotice() {
+  if (releaseNoticeSeenThisSession) return true;
+  try {
+    return localStorage.getItem('release-notice-seen:' + AUDIO_RELEASE_NOTICE.id) === 'seen';
+  } catch (_) {
+    return false;
+  }
+}
+
+function markReleaseNoticeSeen() {
+  releaseNoticeSeenThisSession = true;
+  try {
+    localStorage.setItem('release-notice-seen:' + AUDIO_RELEASE_NOTICE.id, 'seen');
+  } catch (_) {
+    // 保存できない端末でも、この画面では閉じられるようにする。
+  }
+  renderReleaseNotice();
+}
+
+function renderReleaseNotice() {
+  const released = isAudioAvailable(AUDIO_RELEASE_NOTICE);
+  const seen = hasSeenReleaseNotice();
+  const notice = document.getElementById('release-notice');
+  const entry = document.getElementById('release-audio-entry');
+  if (notice) notice.hidden = !released || seen;
+  if (entry) entry.hidden = !released || !seen;
+}
+
+function getReleaseAudioItems() {
+  const scheduled = data.scheduledAudio || {};
+  const releasedItems = items => mergeAudioCatalog([], items || [])
+    .filter(item => item.availableFrom === AUDIO_RELEASE_NOTICE.availableFrom)
+    .filter(isAudioAvailable);
+  return {
+    meditations: releasedItems(scheduled.meditations),
+    stories: releasedItems(scheduled.stories),
+  };
+}
+
+function renderReleaseAudioPage() {
+  const list = document.getElementById('release-audio-list');
+  if (!list) return 0;
+  list.innerHTML = '';
+  const items = getReleaseAudioItems();
+  const sections = [
+    ['瞑想', items.meditations],
+    ['ショートストーリー', items.stories],
+  ];
+  let count = 0;
+  sections.forEach(([label, audioItems]) => {
+    if (audioItems.length === 0) return;
+    const section = document.createElement('section');
+    section.className = 'content-section';
+    const heading = document.createElement('h3');
+    heading.className = 'section-title';
+    heading.textContent = label + '（' + audioItems.length + '本）';
+    section.appendChild(heading);
+    audioItems.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'content-card';
+      card.innerHTML = `
+        <div class="card-title">${escHtml(item.title)}</div>
+        <div class="card-desc">${escHtml(item.description)}</div>
+        <div class="card-meta">${escHtml(item.duration)}</div>
+        <button type="button" class="card-play-btn"
+          data-url="${escAttr(item.audioUrl)}"
+          data-title="${escAttr(item.title)}">▶ 聴く</button>
+      `;
+      section.appendChild(card);
+      count += 1;
+    });
+    list.appendChild(section);
+  });
+  if (count === 0) {
+    list.innerHTML = '<p class="empty-msg">追加の音声は11月1日からお聴きいただけます。</p>';
+  }
+  return count;
+}
+
+function setReleaseAudioLoading(loading) {
+  const labels = {
+    'btn-open-release': '新しい音声を見る',
+    'release-audio-entry': '11月に追加された音声を見る',
+  };
+  Object.entries(labels).forEach(([id, label]) => {
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.disabled = loading;
+    button.setAttribute('aria-busy', String(loading));
+    button.textContent = loading ? '読み込んでいます…' : label;
+  });
+}
+
+async function openReleaseAudio() {
+  if (releaseAudioLoading || !isAudioAvailable(AUDIO_RELEASE_NOTICE)) return;
+  releaseAudioLoading = true;
+  setReleaseAudioLoading(true);
+  const status = document.getElementById('release-load-status');
+  if (status) status.textContent = '';
+  try {
+    await loadData({ forceRefresh: true });
+    const items = getReleaseAudioItems();
+    if (items.meditations.length !== 3 || items.stories.length !== 3) {
+      throw new Error('追加の音声を読み込めませんでした');
+    }
+    const displayed = navigateTo('updates');
+    if (displayed !== 6) throw new Error('追加の音声を表示できませんでした');
+    markReleaseNoticeSeen();
+    document.getElementById('release-audio-heading')?.focus();
+    showToast('新しい音声を表示しました');
+  } catch (error) {
+    console.warn('追加音声の読み込みに失敗しました:', error);
+    if (status) {
+      status.textContent = '音声を読み込めませんでした。通信を確認して、もう一度お試しください。';
+    }
+  } finally {
+    releaseAudioLoading = false;
+    setReleaseAudioLoading(false);
+  }
 }
 
 /* =============================================
@@ -474,6 +609,14 @@ function escAttr(str) {
    イベントリスナー設定
    ============================================= */
 function setupListeners() {
+  document.getElementById('btn-open-release')?.addEventListener('click', openReleaseAudio);
+  document.getElementById('release-audio-entry')?.addEventListener('click', openReleaseAudio);
+  document.getElementById('btn-dismiss-release')?.addEventListener('click', () => {
+    markReleaseNoticeSeen();
+    document.getElementById('release-audio-entry')?.focus();
+  });
+  document.getElementById('btn-release-home')?.addEventListener('click', () => navigateTo('home'));
+
   // ナビゲーション
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => navigateTo(btn.dataset.page));

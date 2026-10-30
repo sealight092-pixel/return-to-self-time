@@ -73,6 +73,19 @@
 
     <!-- ===== ホーム ===== -->
     <section id="page-home" class="page active">
+      <aside id="release-notice" class="release-notice" aria-labelledby="release-notice-title" hidden>
+        <div class="release-notice-copy" aria-live="polite">
+          <p class="release-notice-date">2026年11月1日 更新</p>
+          <h2 id="release-notice-title">新しい音声を6本追加しました</h2>
+          <p class="release-notice-description">瞑想3本とショートストーリー3本が仲間入りしました。<br>お好きなものからお聴きください。</p>
+        </div>
+        <button type="button" id="btn-open-release" class="release-primary">新しい音声を見る</button>
+        <p class="release-notice-help">最新の内容を読み込んで表示します。</p>
+        <button type="button" id="btn-dismiss-release" class="release-dismiss" aria-label="追加音声のお知らせを閉じる">お知らせを閉じる</button>
+      </aside>
+      <button type="button" id="release-audio-entry" class="release-entry" hidden>11月に追加された音声を見る</button>
+      <p id="release-load-status" class="release-status" role="status" aria-live="polite"></p>
+
 <div class="message-card home-message-card">
   <p class="message-label">今日の一言</p>
   <p class="message-text" id="home-daily-message">
@@ -133,6 +146,15 @@
       </p>
       <div id="story-quicknav" class="quick-nav"></div>
       <div id="story-list" class="card-list"></div>
+    </section>
+
+    <!-- ===== 新しく追加された音声 ===== -->
+    <section id="page-updates" class="page">
+      <p class="release-page-date">2026年11月1日 追加</p>
+      <h2 id="release-audio-heading" class="release-page-heading" tabindex="-1">新しく追加された音声</h2>
+      <p class="section-intro">新しい瞑想3本とショートストーリー3本をお届けします。<br>お好きな音声からお聴きください。</p>
+      <div id="release-audio-list" class="release-list"></div>
+      <button type="button" id="btn-release-home" class="btn btn-secondary release-home-btn">ホームへ戻る</button>
     </section>
 
     <!-- ===== ジャーナル ===== -->
