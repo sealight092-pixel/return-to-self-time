@@ -86,6 +86,7 @@ async function loadData({ forceRefresh = false } = {}) {
   data.meditations = mergeAudioCatalog(data.meditations, data.scheduledAudio.meditations || []);
   data.stories = mergeAudioCatalog(data.stories, data.scheduledAudio.stories || []);
   refreshScheduledAudioContent();
+  return { updated: results.filter(result => result.status === 'fulfilled').length, failed: results.flatMap((result, i) => result.status === 'rejected' ? [files[i][1]] : []) };
 }
 
 // 通常データにも同じ音声が入った場合は、二重に表示しない。
@@ -134,6 +135,8 @@ function navigateTo(pageId) {
 
   const titleEl = document.getElementById('header-title');
   if (titleEl) titleEl.textContent = PAGE_TITLES[pageId] || '小さな部屋';
+
+  window.scrollTo?.({ top: 0, left: 0, behavior: 'instant' });
 
   // 画面ごとの描画
   if (pageId === 'home')       renderHome();
@@ -454,9 +457,12 @@ function renderJournal() {
   }
 
   // 今日の日付キーで保存済みを復元
-  const saved = localStorage.getItem(`journal-${todayKey()}`);
   const textarea = document.getElementById('journal-entry');
-  if (textarea) textarea.value = saved || '';
+  // 更新案内から戻った場合にも、書きかけの文章を上書きしない。
+  if (journalSessionEdited) return;
+  const saved = localStorage.getItem(`journal-${todayKey()}`);
+  journalSavedValue = saved || '';
+  if (textarea) textarea.value = journalSavedValue;
 }
 
 function showCurrentPrompt() {
@@ -475,6 +481,10 @@ function saveJournal() {
     return;
   }
   localStorage.setItem(`journal-${todayKey()}`, textarea.value);
+  journalSavedValue = textarea.value;
+  journalSessionEdited = false;
+  const restoreButton = document.getElementById('btn-restore-journal-for-update');
+  if (restoreButton) restoreButton.hidden = true;
   showToast('保存しました');
 }
 
@@ -609,6 +619,7 @@ function escAttr(str) {
    イベントリスナー設定
    ============================================= */
 function setupListeners() {
+  setupAppUpdateControls();
   document.getElementById('btn-open-release')?.addEventListener('click', openReleaseAudio);
   document.getElementById('release-audio-entry')?.addEventListener('click', openReleaseAudio);
   document.getElementById('btn-dismiss-release')?.addEventListener('click', () => {
@@ -666,13 +677,158 @@ function setupListeners() {
 /* =============================================
    Service Worker 登録
    ============================================= */
-function registerSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-      console.warn('Service Worker 登録失敗:', err);
-    });
+/* =============================================
+   最新の内容を確認・画面を安全に更新
+   ============================================= */
+const APP_SHELL_VERSION = 'small-room-v13';
+const appUpdateState = {
+  registrationPromise: null,
+  checking: null,
+  ready: false,
+  lastCheck: 0,
+};
+let journalSavedValue = '';
+let journalSessionEdited = false;
+
+function setAppUpdateCheckStatus(message) {
+  const status = document.getElementById('app-update-check-status');
+  if (status) status.textContent = message;
+}
+
+function renderAppUpdateNotice(message) {
+  const notice = document.getElementById('app-update-notice');
+  if (notice) notice.hidden = !appUpdateState.ready;
+  const text = document.getElementById('app-update-message');
+  if (text) text.textContent = message || '新しい画面の準備ができました。「最新の画面に更新」を押してください。';
+}
+
+function receiveAppVersion(event) {
+  if (event.data?.type !== 'SELF_CARE_APP_VERSION') return;
+  if (event.data.version && event.data.version !== APP_SHELL_VERSION) {
+    appUpdateState.ready = true;
+    renderAppUpdateNotice();
+    setAppUpdateCheckStatus('新しい画面があります。画面上部の「最新の画面に更新」を押してください。');
   }
 }
+
+function requestActiveAppVersion() {
+  navigator.serviceWorker?.controller?.postMessage({ type: 'GET_SELF_CARE_APP_VERSION' });
+}
+
+async function checkAppUpdates({ manual = false, refreshData = true } = {}) {
+  if (appUpdateState.checking) return appUpdateState.checking;
+  if (!manual && Date.now() - appUpdateState.lastCheck < 5 * 60 * 1000) return;
+  appUpdateState.lastCheck = Date.now();
+  const button = document.getElementById('btn-check-app-update');
+  if (button) button.disabled = true;
+  if (manual) setAppUpdateCheckStatus('新しい内容を確認しています…');
+  appUpdateState.checking = (async () => {
+    const registration = await appUpdateState.registrationPromise;
+    const tasks = [];
+    if (refreshData) tasks.push(loadData({ forceRefresh: true }));
+    if (registration) tasks.push(registration.update());
+    const results = await Promise.allSettled(tasks);
+    requestActiveAppVersion();
+    if (appUpdateState.ready) {
+      renderAppUpdateNotice();
+      if (manual) {
+        setAppUpdateCheckStatus('新しい画面があります。画面上部の「最新の画面に更新」を押してください。');
+        document.getElementById('app-update-notice')?.scrollIntoView?.({ block: 'start', behavior: 'instant' });
+      }
+      return;
+    }
+    if (!manual) return;
+    const dataResult = refreshData ? results[0] : null;
+    if (dataResult?.status === 'rejected' || dataResult?.value?.updated === 0) {
+      setAppUpdateCheckStatus('通信できませんでした。接続後に、もう一度「更新を確認」を押してください。');
+    } else if (dataResult?.value?.failed?.length) {
+      setAppUpdateCheckStatus('一部の内容を読み込めませんでした。少し待って、もう一度「更新を確認」を押してください。');
+    } else if (results.some(result => result.status === 'rejected')) {
+      setAppUpdateCheckStatus('音声などの内容を読み込みました。画面の更新は、次にオンラインで開いたときに確認します。');
+    } else {
+      setAppUpdateCheckStatus('音声・お知らせの内容を読み込みました。新しい画面がある場合は、上に更新ボタンが表示されます。');
+    }
+  })().finally(() => {
+    appUpdateState.checking = null;
+    if (button) button.disabled = false;
+  });
+  return appUpdateState.checking;
+}
+
+function applyAppUpdate() {
+  if (!appUpdateState.ready) return;
+  const restoreButton = document.getElementById('btn-restore-journal-for-update');
+  if (restoreButton) restoreButton.hidden = true;
+  const player = document.getElementById('audio-player');
+  if (player && !player.classList.contains('hidden')) {
+    renderAppUpdateNotice('音声はそのままお聴きいただけます。聴き終えて音声の「閉じる」を押してから、「最新の画面に更新」を押してください。');
+    return;
+  }
+  if (journalSessionEdited) {
+    const isEmpty = document.getElementById('journal-entry')?.value === '';
+    if (restoreButton) restoreButton.hidden = !isEmpty;
+    renderAppUpdateNotice(isEmpty
+      ? 'ジャーナルが空欄になっています。「保存済みの文章に戻す」を押してから、「最新の画面に更新」を押してください。'
+      : '書きかけのジャーナルがあります。「ジャーナル」で「保存する」を押してから、「最新の画面に更新」を押してください。');
+    return;
+  }
+  // 自動では再読み込みしない。保存済みの記録は端末に残る。
+  window.location.reload();
+}
+
+function setupAppUpdateControls() {
+  document.getElementById('btn-open-app-help')?.addEventListener('click', () => {
+    const guide = document.getElementById('install-help');
+    if (guide) guide.open = true;
+    const heading = document.getElementById('app-help-heading');
+    heading?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    heading?.focus({ preventScroll: true });
+  });
+  document.getElementById('btn-check-app-update')?.addEventListener('click', () => checkAppUpdates({ manual: true }));
+  document.getElementById('btn-apply-app-update')?.addEventListener('click', applyAppUpdate);
+  document.getElementById('btn-restore-journal-for-update')?.addEventListener('click', () => {
+    const textarea = document.getElementById('journal-entry');
+    // 空欄になったときだけ復元ボタンを使う。入力済みの下書きは破棄しない。
+    if (!textarea || textarea.value !== '') return;
+    textarea.value = journalSavedValue;
+    journalSessionEdited = false;
+    const restoreButton = document.getElementById('btn-restore-journal-for-update');
+    if (restoreButton) restoreButton.hidden = true;
+    renderAppUpdateNotice();
+  });
+  document.getElementById('journal-entry')?.addEventListener('input', event => {
+    journalSessionEdited = event.target.value !== journalSavedValue;
+    const restoreButton = document.getElementById('btn-restore-journal-for-update');
+    if (restoreButton && (!journalSessionEdited || event.target.value !== '')) restoreButton.hidden = true;
+  });
+  const checkAfterReturn = () => {
+    if (!document.hidden) checkAppUpdates();
+  };
+  document.addEventListener('visibilitychange', checkAfterReturn);
+  window.addEventListener('pageshow', checkAfterReturn);
+  window.addEventListener('online', checkAfterReturn);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', receiveAppVersion);
+    navigator.serviceWorker.addEventListener('controllerchange', requestActiveAppVersion);
+  }
+}
+
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    appUpdateState.registrationPromise = navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then(registration => {
+        requestActiveAppVersion();
+        return registration;
+      })
+      .catch(err => {
+        console.warn('Service Worker 登録失敗:', err);
+        return null;
+      });
+  }
+  // 初回のデータ取得は init が済ませているので重ねて取得しない。
+  checkAppUpdates({ refreshData: false });
+}
+
 
 /* =============================================
    初期化
@@ -1073,3 +1229,5 @@ if (skipBreathingBtn) {
     }
   }, 1800);
 });
+
+

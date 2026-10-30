@@ -1680,14 +1680,86 @@ header {
   display: none !important;
 }
 .release-notice {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   margin: 0 0 24px;
-  padding: 26px 22px 14px;
-  border: 1px solid #dfc4a0;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #fff8e9, #fffdf8);
-  box-shadow: 0 8px 24px rgba(114, 81, 42, 0.09);
+  padding: 26px 24px 12px;
+  border: 1px solid #ecc78c;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 5% 0%, #ffe4be 0%, transparent 52%), radial-gradient(ellipse at 100% 40%, #ffe2d9 0%, transparent 52%), linear-gradient(140deg, #fff9dc, #fffdf6 56%, #fff0e7);
+  box-shadow: 0 12px 34px rgba(191, 121, 58, 0.14), inset 0 0 0 5px rgba(255, 255, 255, 0.58);
   color: #4c3c31;
-  text-align: left;
+  text-align: center;
+}
+.release-notice-copy,
+.release-notice > button,
+.release-notice-help {
+  position: relative;
+  z-index: 1;
+}
+.release-new-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 10px;
+  padding: 6px 15px;
+  border: 1px solid #eacb92;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #8b5128;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.release-new-badge span {
+  color: #b87320;
+  font-size: 16px;
+}
+.release-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.release-sparkles span {
+  position: absolute;
+  color: #d5a23c;
+  line-height: 1;
+  text-shadow: 0 0 14px #fff;
+  animation: release-twinkle 1.8s ease-in-out 2;
+}
+.release-sparkles span:nth-child(1) { top: 17%; left: 7%; font-size: 34px; }
+.release-sparkles span:nth-child(2) { top: 8%; right: 9%; font-size: 24px; animation-delay: .25s; }
+.release-sparkles span:nth-child(3) { top: 30%; right: 6%; font-size: 38px; animation-delay: .45s; }
+.release-sparkles span:nth-child(4) { top: 49%; left: 4%; font-size: 20px; animation-delay: .15s; }
+.release-sparkles span:nth-child(5) { bottom: 16%; right: 4%; font-size: 18px; animation-delay: .35s; }
+@keyframes release-twinkle {
+  0%, 100% { opacity: .65; transform: scale(.9) rotate(-8deg); }
+  50% { opacity: 1; transform: scale(1.12) rotate(8deg); }
+}
+.release-audio-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.release-audio-badges > span {
+  padding: 6px 12px;
+  border: 1px solid #efd3aa;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .76);
+  color: #86542e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.release-audio-badges > span + span {
+  border-color: #ecc7bf;
+  color: #8b5149;
+}
+.release-audio-badges strong {
+  font-size: 17px;
 }
 .release-notice-date,
 .release-page-date {
@@ -1698,24 +1770,27 @@ header {
   letter-spacing: 0.04em;
 }
 .release-notice h2 {
-  margin: 0 0 12px;
-  font-size: 22px;
-  line-height: 1.55;
-  color: #4c3c31;
+  margin: 0 0 16px;
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .06em;
+  color: #8d4937;
 }
 .release-notice-description {
-  margin: 0 0 20px;
-  font-size: 17px;
+  margin: 0 0 18px;
+  font-size: 16px;
   line-height: 1.85;
 }
 .release-primary {
   display: block;
   width: 100%;
-  min-height: 54px;
+  min-height: 56px;
   padding: 14px 18px;
   border: 0;
   border-radius: 999px;
-  background: #87603d;
+  background: linear-gradient(110deg, #b04e33, #a63e50);
+  box-shadow: 0 6px 16px rgba(170, 65, 66, .2), inset 0 1px 0 rgba(255, 255, 255, .3);
   color: #fff;
   font: inherit;
   font-size: 18px;
@@ -1724,8 +1799,10 @@ header {
   cursor: pointer;
 }
 .release-primary:hover {
-  background: #714d2f;
+  background: linear-gradient(110deg, #9c4028, #913247);
 }
+.release-primary span:first-child { margin-right: 5px; }
+.release-primary span:last-child { margin-left: 7px; }
 .release-primary:disabled,
 .release-entry:disabled {
   opacity: 0.65;
@@ -1813,11 +1890,101 @@ header {
 }
 @media (max-width: 380px) {
   .release-notice { padding: 22px 18px 12px; }
-  .release-notice h2 { font-size: 21px; }
+  .release-notice h2 { font-size: 26px; }
+  .release-audio-badges { gap: 6px; }
+  .release-audio-badges > span { padding: 6px 9px; font-size: 13px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .release-sparkles span { animation: none; }
+}
+
+/* 更新とホーム画面への追加ガイド */
+#app-update-notice[hidden],
+#btn-restore-journal-for-update[hidden] { display: none !important; }
+.app-update-notice,
+.app-help-card {
+  margin: 0 0 24px;
+  padding: 22px;
+  border: 1px solid #dfd9c6;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .85);
+  color: #514437;
+}
+.app-update-notice {
+  width: calc(100% - 36px);
+  max-width: 568px;
+  margin: 20px auto 0;
+  border-color: #a7c9c3;
+  background: #f0fbf6;
+  box-shadow: 0 8px 24px rgba(54, 92, 81, .14);
+  scroll-margin-top: calc(var(--header-h) + 18px);
+}
+.app-update-notice p { margin: 0 0 14px; font-size: 16px; line-height: 1.8; }
+.app-help-card { margin-top: 28px; }
+.app-help-shortcut {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 20px;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .65);
+  color: #5f6557;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+.app-help-shortcut span:first-child { margin-right: 4px; font-size: 20px; }
+.app-help-shortcut span:last-child { margin-left: 4px; font-size: 20px; }
+.app-help-card h2 { margin: 0 0 16px; font-size: 19px; color: #655444; scroll-margin-top: calc(var(--header-h) + 22px); }
+.install-help summary {
+  min-height: 48px;
+  padding: 13px 12px;
+  border-radius: 12px;
+  background: #fff6e8;
+  color: #795432;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.7;
+  cursor: pointer;
+}
+.install-help summary span { font-size: 21px; margin-right: 5px; }
+.install-help-content { padding: 4px 3px 12px; font-size: 15px; line-height: 1.9; }
+.install-help-content h3 { margin: 20px 0 8px; font-size: 17px; color: #735033; }
+.install-help-content ol { padding-left: 1.6em; margin: 0; }
+.install-help-content li { margin-bottom: 10px; padding-left: 3px; }
+.install-help-note { color: #6d6056; font-size: 14px; }
+.app-update-help { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e8e0d5; }
+.app-update-help > p { margin: 0 0 12px; font-size: 15px; line-height: 1.8; }
+.app-update-button {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 1px solid #87aaa2;
+  border-radius: 14px;
+  background: #f4fcf8;
+  color: #355f56;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.app-update-button:disabled { opacity: .65; cursor: wait; }
+.app-update-restore { margin-top: 10px; background: #fffaf0; color: #765330; border-color: #d9c49d; }
+.app-update-button:focus-visible,
+.app-help-shortcut:focus-visible,
+.install-help summary:focus-visible { outline: 3px solid #376d80; outline-offset: 4px; }
+#app-update-check-status:not(:empty) { margin-top: 12px; color: #355f56; }
 
 .release-list .content-section .card-play-btn {
   background: #87603d;
   color: #fff;
   box-shadow: none;
 }
+
+

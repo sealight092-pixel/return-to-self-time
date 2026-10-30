@@ -71,20 +71,30 @@
   <!-- メインコンテンツ -->
   <main class="app-main">
 
+    <aside id="app-update-notice" class="app-update-notice" aria-label="アプリの更新" hidden>
+      <p id="app-update-message" role="status" aria-live="polite">新しい画面の準備ができました。</p>
+      <button type="button" id="btn-apply-app-update" class="app-update-button">最新の画面に更新</button>
+      <button type="button" id="btn-restore-journal-for-update" class="app-update-button app-update-restore" hidden>保存済みの文章に戻す</button>
+    </aside>
+
     <!-- ===== ホーム ===== -->
     <section id="page-home" class="page active">
       <aside id="release-notice" class="release-notice" aria-labelledby="release-notice-title" hidden>
+        <div class="release-sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span><span>✧</span><span>✦</span></div>
         <div class="release-notice-copy" aria-live="polite">
+          <p class="release-new-badge"><span aria-hidden="true">✦</span> 新しいお知らせ <span aria-hidden="true">✦</span></p>
           <p class="release-notice-date">2026年11月1日 更新</p>
-          <h2 id="release-notice-title">新しい音声を6本追加しました</h2>
-          <p class="release-notice-description">瞑想3本とショートストーリー3本が仲間入りしました。<br>お好きなものからお聴きください。</p>
+          <h2 id="release-notice-title">新しい音声が<br>届きました！</h2>
+          <div class="release-audio-badges"><span>瞑想 <strong>3本</strong></span><span>ショートストーリー <strong>3本</strong></span></div>
+          <p class="release-notice-description">心にそっと寄り添う、新しい6本。<br>お好きなものからお聴きください。</p>
         </div>
-        <button type="button" id="btn-open-release" class="release-primary">新しい音声を見る</button>
+        <button type="button" id="btn-open-release" class="release-primary"><span aria-hidden="true">✧</span> 新しい音声を見る <span aria-hidden="true">→</span></button>
         <p class="release-notice-help">最新の内容を読み込んで表示します。</p>
         <button type="button" id="btn-dismiss-release" class="release-dismiss" aria-label="追加音声のお知らせを閉じる">お知らせを閉じる</button>
       </aside>
       <button type="button" id="release-audio-entry" class="release-entry" hidden>11月に追加された音声を見る</button>
       <p id="release-load-status" class="release-status" role="status" aria-live="polite"></p>
+      <button type="button" id="btn-open-app-help" class="app-help-shortcut"><span aria-hidden="true">⌂</span> ホーム画面への追加・更新のしかた <span aria-hidden="true">›</span></button>
 
 <div class="message-card home-message-card">
   <p class="message-label">今日の一言</p>
@@ -129,7 +139,44 @@
       <span class="home-menu-desc">体験や感想に、やさしく触れる</span>
     </span>
   </button>
-</div>    </section>
+</div>
+      <section class="app-help-card" aria-labelledby="app-help-heading">
+        <h2 id="app-help-heading" tabindex="-1">アプリをもっと使いやすく</h2>
+        <details class="install-help" id="install-help">
+          <summary><span aria-hidden="true">⌂</span> スマホのホーム画面に追加する</summary>
+          <div class="install-help-content">
+            <p>スマホのホーム画面にアイコンを置くと、次からすぐに開けます。</p>
+            <h3>iPhone（Safari）</h3>
+            <ol>
+              <li>このアプリをSafariで開き、ページメニューから「共有」を押します。共有ボタンが見えている場合は、そのボタンを押します。</li>
+              <li>「ホーム画面に追加」を選びます。見つからないときは、共有のメニューを下へスクロールします。</li>
+              <li>「ウェブアプリとして開く」がある場合はオンにして、「追加」を押します。</li>
+            </ol>
+            <p class="install-help-note">「ホーム画面に追加」が見つからないときは、共有メニューの「アクションを編集」を確認してください。<a href="https://support.apple.com/ja-jp/guide/iphone/iphea86e5236/ios" target="_blank" rel="noopener noreferrer">Appleの手順を見る</a></p>
+            <h3>iPhone（Chrome）</h3>
+            <ol>
+              <li>このアプリをChromeで開き、アドレスバーの近くにある共有マークを押します。</li>
+              <li>「ホーム画面に追加」を選びます。</li>
+              <li>名前を確認して、「追加」を押します。</li>
+            </ol>
+            <p class="install-help-note"><a href="https://support.google.com/chrome/answer/15085120?co=GENIE.Platform%3DiOS&amp;hl=ja" target="_blank" rel="noopener noreferrer">GoogleのiPhone向け手順を見る</a></p>
+            <h3>Android（Chrome）</h3>
+            <ol>
+              <li>このアプリをChromeで開き、右上の「︙」を押します。</li>
+              <li>「インストールしてショートカットを作成」「ホーム画面に追加」などを選びます。</li>
+              <li>表示された案内に沿って「追加」または「インストール」を押します。</li>
+            </ol>
+            <p class="install-help-note"><a href="https://support.google.com/chrome/answer/9658361?co=GENIE.Platform%3DAndroid&amp;hl=ja" target="_blank" rel="noopener noreferrer">GoogleのAndroid向け手順を見る</a></p>
+            <p class="install-help-note">LINEなどの中で開いている場合は、その画面のメニューで「ブラウザで開く」などを選び、SafariまたはChromeで開いてください。機種によって表示の言葉が少し異なります。</p>
+          </div>
+        </details>
+        <div class="app-update-help">
+          <p>音声などの新しい内容は、アプリを開くときに自動で読み込みます。表示が変わらないときはこちら。</p>
+          <button type="button" id="btn-check-app-update" class="app-update-button">更新を確認する</button>
+          <p id="app-update-check-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </section>
 
     <!-- ===== 瞑想 ===== -->
     <section id="page-meditation" class="page">
@@ -258,3 +305,5 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
