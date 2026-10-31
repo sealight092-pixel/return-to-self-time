@@ -1,11 +1,11 @@
 [
   {
-  "category": "朝の瞑想",
-  "title": "つらさが残る自分をいたわる",
-  "description": "朝、自分にやさしく戻るための瞑想",
-"audioUrl": "https://drive.google.com/file/d/1d20-yil7iq6aKXuAozGV0ELHP_3oIXIs/preview",
-  "duration": "約10分"
-},
+    "category": "朝の瞑想",
+    "title": "つらさが残る自分をいたわる",
+    "description": "朝、自分にやさしく戻るための瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1d20-yil7iq6aKXuAozGV0ELHP_3oIXIs/preview",
+    "duration": "約10分"
+  },
   {
     "category": "気分で選ぶ",
     "title": "不安が強いとき",
@@ -40,7 +40,8 @@
     "description": "他の人のエネルギーから離れて、自分の中心に戻る",
     "audioUrl": "https://drive.google.com/file/d/150OUHPLF4fysP9VLK9IIok2jVLFpOMm8/preview",
     "duration": "約9分"
-  },  {
+  },
+  {
     "category": "朝の瞑想",
     "title": "自分に優しさを向ける",
     "description": "朝、自分にやさしさを向ける瞑想",
@@ -81,5 +82,26 @@
     "description": "夜、一日を手放して眠りにつく瞑想",
     "audioUrl": "https://drive.google.com/file/d/1o1lqXPosSVmxNQ-Pl2n513kivWlXZjBJ/preview",
     "duration": "約10分"
+  },
+  {
+    "category": "気分で選ぶ",
+    "title": "もう頑張れないと感じたとき",
+    "description": "頑張り続けて疲れた心に、休んでもいいという許可を届ける瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1mNK00IL-58p4MqYOnJLvihJsl9SE4Gkj/preview",
+    "duration": "約8分"
+  },
+  {
+    "category": "気分で選ぶ",
+    "title": "怒りや悔しさが消えないとき",
+    "description": "怒りを無理に消さずに受けとめ、自分の境界を大切にする瞑想",
+    "audioUrl": "https://drive.google.com/file/d/16StjHgadTwDst91v5o3SeEt-WAzWGgeE/preview",
+    "duration": "約8分"
+  },
+  {
+    "category": "気分で選ぶ",
+    "title": "たった3分、自分に戻る",
+    "description": "忙しい日にも呼吸と体の感覚に戻る、短い瞑想",
+    "audioUrl": "https://drive.google.com/file/d/1YC8CjG7UVtAJExeoBnOqeueavc_dGpx0/preview",
+    "duration": "約3分"
   }
 ]
