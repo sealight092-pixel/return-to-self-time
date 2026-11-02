@@ -1,7 +1,7 @@
-const CACHE = 'small-room-v13';
+const CACHE = 'small-room-v14';
 
 const PRECACHE = [
-  './', './index.html', './styles.css', './app.js', './manifest.json',
+  './', './index.html', './styles.css?v=14', './app.js?v=14', './manifest.json',
   './data/messages.json', './data/meditations.json', './data/stories.json',
   './data/scheduled-audio.json', './data/journal-prompts.json', './data/voices.json',
 ];
@@ -52,4 +52,6 @@ self.addEventListener('fetch', event => {
     }
   })());
 });
+
+
 
