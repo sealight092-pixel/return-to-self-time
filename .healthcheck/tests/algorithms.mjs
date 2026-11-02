@@ -49,10 +49,9 @@ export function pngPixel(png, x, y) {
   return [...previous.subarray(x * channels, x * channels + 3)];
 }
 
-export function classifyFreeBackground({ rgb, belowBody, noRepeat, hasGradient, cardDark }) {
-  if (rgb.every(value => value < 90)) return 'passed';
-  if (rgb.every(value => value >= 245) && belowBody && noRepeat && hasGradient && cardDark) return 'known_issue';
-  return 'failed';
+export function classifyFreeBackground({ rgb }) {
+  return Array.isArray(rgb) && rgb.length === 3 && rgb.every(value => Number.isFinite(value) && value >= 0 && value < 90)
+    ? 'passed' : 'failed';
 }
 
 export function firstPlaybackSeconds(text) {
@@ -81,4 +80,3 @@ export function playbackProgress(state, seconds, now) {
   return { ...state, lastSeconds: seconds, lastObservedAt: now, increases,
     complete: elapsedMs >= 5000 && seconds - state.startSeconds >= 5 && increases >= 3 };
 }
-
