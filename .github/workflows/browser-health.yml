@@ -1,0 +1,64 @@
+name: 公開サイトとアプリのブラウザ点検
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 23 * * *'
+  pull_request:
+    paths:
+      - '.healthcheck/**'
+      - '.github/workflows/browser-health.yml'
+
+# 補助テストは08:45 JST、専用クラウドチャットは09:00 JSTに最新結果を確認する。
+# scheduleは既定ブランチへ入った後に有効になる。
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-health-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .healthcheck
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: 固定版の依存関係を準備
+        id: dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+            node -e 'process.stdout.write("HEALTHCHECK_PACKAGE_LOCK=" + JSON.stringify(JSON.parse(require("node:fs").readFileSync("package-lock.json", "utf8"))) + "\n")'
+          fi
+      - name: 公式Chromeを準備
+        id: chrome
+        run: npx --no-install playwright install --with-deps chrome
+      - name: 点検コードの補助処理を確認
+        id: unit
+        run: npm run test:unit
+      - name: 公開画面を点検
+        id: browser
+        run: npm test
+        env:
+          CI: 'true'
+          TZ: Asia/Tokyo
+      - name: 準備段階で中断した場合も結果を記録
+        if: always()
+        run: node report-setup.mjs
+        env:
+          HEALTHCHECK_DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}
+          HEALTHCHECK_CHROME_OUTCOME: ${{ steps.chrome.outcome }}
+          HEALTHCHECK_UNIT_OUTCOME: ${{ steps.unit.outcome }}
+          HEALTHCHECK_BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+      # artifact、trace、動画、認証状態、ブラウザキャッシュは保存しない。
