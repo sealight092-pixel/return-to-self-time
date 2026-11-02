@@ -76,9 +76,8 @@ export async function checkFreeBackground(page, testInfo) {
   const screenshot = await page.screenshot({ type: 'png', animations: 'disabled' });
   const rgb = pngPixel(screenshot, metrics.x, metrics.y);
   const status = classifyFreeBackground({ ...metrics, rgb });
-  await record(testInfo, '無料アプリ・最下部背景', status, { ...metrics, rgb,
-    issue: status === 'known_issue' ? '確認済み：画面高を超えた余白が白くなる' : undefined });
-  expect(status, '確認済みの白背景症状以外の表示異常です').not.toBe('failed');
+  await record(testInfo, '無料アプリ・最下部背景', status, { ...metrics, rgb });
+  expect(status, '無料アプリの最下部が濃色背景を維持していません').toBe('passed');
 }
 
 async function captureCurrentClock(frame) {

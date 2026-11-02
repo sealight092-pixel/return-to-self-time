@@ -48,14 +48,15 @@ test('ChromeのRGB/RGBA PNGの全フィルターで下部の測定画素を復�
   }
 });
 
-test('確認済みの白背景条件が全て一致した時だけknown_issueにする', () => {
+test('無料アプリ下部は暗色だけを合格とし、白背景の再発も失敗にする', () => {
   const known = { rgb: [255, 255, 255], belowBody: true, noRepeat: true, hasGradient: true, cardDark: true };
-  assert.equal(classifyFreeBackground(known), 'known_issue');
+  assert.equal(classifyFreeBackground(known), 'failed');
   for (const name of ['belowBody', 'noRepeat', 'hasGradient', 'cardDark']) {
     assert.equal(classifyFreeBackground({ ...known, [name]: false }), 'failed');
   }
   assert.equal(classifyFreeBackground({ ...known, rgb: [130, 200, 250] }), 'failed');
   assert.equal(classifyFreeBackground({ ...known, rgb: [11, 26, 43] }), 'passed');
+  assert.equal(classifyFreeBackground({ ...known, rgb: [] }), 'failed');
 });
 
 test('再生位置と総時間の並びから現在位置だけを読む', () => {

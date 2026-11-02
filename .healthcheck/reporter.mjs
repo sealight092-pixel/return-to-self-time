@@ -45,7 +45,7 @@ export default class HealthReporter {
       '',
       `${report.observedAtJst} / ${cell(result.status)}`,
       '',
-      '390×844、空のブラウザ環境、Asia/Tokyo。既存の個人記録・認証情報は使用していません。',
+      '無料アプリは390×844・320×740、他のサイトと有料アプリは390×844。各testは空のブラウザ環境、Asia/Tokyo。既存の個人記録・認証情報は使用していません。',
       '',
       '| 項目 | 試行 | 結果 | 内容 |',
       '|---|---:|---|---|',
@@ -56,7 +56,7 @@ export default class HealthReporter {
         lines.push(`| ${cell(check.check)} | | ${cell(check.status)} | ${cell(JSON.stringify(check.details ?? {}))} |`);
       }
     }
-    lines.push('', 'known_issueは確認済みの無料アプリ下部背景だけです。他の失敗・検証不能は失敗として扱います。');
+    lines.push('', '無料アプリの下部背景を含め、表示・保存・再生の失敗や検証不能を失敗として扱います。');
     lines.push('1回目失敗・2回目成功も両方記録します。GitHubの最終成功だけで一時障害を消しません。');
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
   }
