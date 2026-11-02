@@ -1,4 +1,4 @@
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync } from 'node:fs';
 
 const clean = text => String(text ?? '')
   .replace(/(?:Bearer\s+|gh[opsu]_|github_pat_)[A-Za-z0-9_\-.]+/gi, '[REDACTED]')
@@ -37,6 +37,7 @@ export default class HealthReporter {
       overallStatus: result.status,
       attempts: this.attempts,
     };
+    writeFileSync('healthcheck-result.json', JSON.stringify(report));
     process.stdout.write('HEALTHCHECK_RESULT=' + JSON.stringify(report) + '\n');
     if (!process.env.GITHUB_STEP_SUMMARY) return;
     const lines = [

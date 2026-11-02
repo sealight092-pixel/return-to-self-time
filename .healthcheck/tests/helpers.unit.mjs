@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { deflateSync } from 'node:zlib';
-import { pngPixel, classifyFreeBackground, firstPlaybackSeconds } from './algorithms.mjs';
+import { pngPixel, classifyFreeBackground, firstPlaybackSeconds, exactClockSeconds, playbackProgress } from './algorithms.mjs';
 import HealthReporter from '../reporter.mjs';
 
 function chunk(type, body) {
@@ -62,6 +62,23 @@ test('再生位置と総時間の並びから現在位置だけを読む', () =>
   assert.equal(firstPlaybackSeconds('0:05 / 8:10'), 5);
   assert.equal(firstPlaybackSeconds('1:02:03 / 2:00:00'), 3723);
   assert.equal(firstPlaybackSeconds('ログインして再生してください'), null);
+});
+
+test('総時間への飛びと瞬時の増加を拒否し、5秒以上の段階的な進行だけを受け入れる', () => {
+  const initial = { startSeconds: 0, startedAt: 0, lastSeconds: 0, lastObservedAt: 0, increases: 0 };
+  assert.throws(() => playbackProgress(initial, 490, 6000), /実経過時間/); // 0:00 → duration 8:10
+  assert.throws(() => playbackProgress(initial, 5, 100), /実経過時間/);
+  assert.equal(playbackProgress(initial, 5, 5000).complete, false); // 1回の飛びだけでは合格しない
+  let state = initial;
+  for (let seconds = 1; seconds <= 5; seconds++) {
+    state = playbackProgress(state, seconds, seconds * 1000);
+    assert.equal(state.complete, seconds === 5);
+  }
+  assert.equal(state.increases, 5);
+  assert.throws(() => playbackProgress(state, 4, 6000), /逆行/);
+  assert.equal(exactClockSeconds('0:05'), 5);
+  assert.equal(exactClockSeconds('\u200e0:05'), 5);
+  assert.equal(exactClockSeconds('0:05 / 8:10'), null); // 混在したノードは現在位置として読まない
 });
 
 test('reporterは失敗と再試行の成功を両方残し、secretを整形出力しない', () => {

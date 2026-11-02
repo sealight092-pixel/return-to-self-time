@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { pngPixel, classifyFreeBackground, firstPlaybackSeconds } from './algorithms.mjs';
+import { pngPixel, classifyFreeBackground, exactClockSeconds, playbackProgress } from './algorithms.mjs';
 
 export const URLS = Object.freeze({
   sogetsu: 'https://so-getsu.com/',
@@ -81,23 +81,62 @@ export async function checkFreeBackground(page, testInfo) {
   expect(status, '確認済みの白背景症状以外の表示異常です').not.toBe('failed');
 }
 
-async function visibleClock(frame) {
-  // 画面に表示された時刻とARIA値だけを読み、本文や会員情報をログへ出さない。
-  return frame.evaluate(() => {
+async function captureCurrentClock(frame) {
+  // 現在位置のDOM要素を一度だけ捕まえ、再生・停止で同じ要素を読み続ける。
+  // body全体の「最初の時刻」を毎回選び直すと総時間への取り違えが起こるため行わない。
+  return frame.evaluateHandle(() => {
     const visible = element => {
       const rect = element.getBoundingClientRect();
       const css = getComputedStyle(element);
       return rect.width > 0 && rect.height > 0 && css.visibility !== 'hidden' && css.display !== 'none';
     };
-    const specific = [...document.querySelectorAll('.ytp-time-current,[class*="current-time"],[role="slider"]')]
-      .filter(visible).map(element => element.getAttribute('aria-valuetext') || element.innerText || element.getAttribute('aria-label') || '');
-    const texts = [...specific, document.body.innerText];
-    for (const text of texts) {
-      const match = text.match(/\b\d{1,2}:\d{2}(?::\d{2})?\b/);
-      if (match) return match[0];
+    const clean = text => String(text ?? '').replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '').trim();
+    const readText = node => clean(node.innerText ?? node.textContent);
+    const clock = /^\d{1,2}:\d{2}(?::\d{2})?$/;
+    for (const node of document.querySelectorAll('.ytp-time-current,[class*="current-time"]')) {
+      if (visible(node) && clock.test(readText(node))) {
+        return { node, kind: 'current-time-class' };
+      }
+    }
+    // Google Driveのgenericな「0:00」「8:10」の組は、最小の時刻表示領域を特定し、
+    // その第一要素（現在位置）だけを固定する。総時間は別ノードとして確認する。
+    const nodes = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = clean(walker.currentNode.textContent);
+      const node = walker.currentNode.parentElement;
+      if (clock.test(text) && node && visible(node) && clock.test(readText(node)) && !nodes.includes(node)) nodes.push(node);
+    }
+    const toSeconds = text => text.split(':').reduce((sum, part) => sum * 60 + Number(part), 0);
+    for (const node of nodes) {
+      let region = node.parentElement;
+      for (let depth = 0; region && depth < 4; depth++, region = region.parentElement) {
+        const pair = nodes.filter(candidate => region.contains(candidate));
+        if (pair.length !== 2 || pair[0] !== node) continue;
+        const currentText = readText(pair[0]), durationText = readText(pair[1]);
+        const remainder = readText(region).replace(currentText, '').replace(durationText, '').trim();
+        if (!['', '/', '／', 'of'].includes(remainder)) continue;
+        if (toSeconds(currentText) > toSeconds(durationText)) continue;
+        return { node: pair[0], durationNode: pair[1], kind: 'current-duration-pair' };
+      }
     }
     return null;
   });
+}
+
+async function readCurrentClock(observer) {
+  const observation = await observer.evaluate(state => {
+    const node = state.node;
+    const rect = node.getBoundingClientRect();
+    const css = getComputedStyle(node);
+    return { connected: node.isConnected, visible: rect.width > 0 && rect.height > 0 && css.display !== 'none' && css.visibility !== 'hidden',
+      text: node.innerText ?? node.textContent, kind: state.kind };
+  });
+  expect(observation.connected, '固定した現在位置の要素が外れました').toBe(true);
+  expect(observation.visible, '固定した現在位置が見えなくなりました').toBe(true);
+  const seconds = exactClockSeconds(observation.text);
+  expect(seconds, '現在位置の表示を時刻として検証できません').not.toBeNull();
+  return { seconds, kind: observation.kind };
 }
 
 async function clickDriveControl(frame, kind) {
@@ -133,36 +172,41 @@ export async function checkAudio(page, testInfo, category, title) {
   await mobileMeasure(page, testInfo, `有料アプリ・${category}プレーヤー`);
   const frame = await (await iframe.elementHandle()).contentFrame();
   expect(frame, 'Google Drive埋込フレームがありません').not.toBeNull();
-  let start;
+  let observer;
   await expect.poll(async () => {
-    start = firstPlaybackSeconds(await visibleClock(frame));
-    return start;
-  }, { timeout: 25_000, message: '音声の可視時刻が読み込まれません（認証は回避しません）' }).not.toBeNull();
-  expect(start, '音声の表示時刻を検証できません').not.toBeNull();
+    const candidate = await captureCurrentClock(frame);
+    if (await candidate.evaluate(value => value !== null)) { observer = candidate; return true; }
+    await candidate.dispose();
+    return false;
+  }, { timeout: 25_000, message: '現在位置と総時間を区別できません（認証は回避しません）' }).toBe(true);
+  const initial = await readCurrentClock(observer);
+  const start = initial.seconds;
   await clickDriveControl(frame, 'play');
-  let lastSeconds = start;
+  const startedAt = performance.now();
+  let progress = { startSeconds: start, startedAt, lastSeconds: start, lastObservedAt: startedAt, increases: 0, complete: false };
   await expect.poll(async () => {
     await expect(player, '再生中にプレーヤーが消えました').toBeVisible({ timeout: 1_000 });
     expect(await iframe.evaluate(element => element.isConnected), '再生フレームが切断されました').toBe(true);
-    const seconds = firstPlaybackSeconds(await visibleClock(frame));
-    if (seconds !== null) lastSeconds = seconds;
-    return lastSeconds - start;
-  }, { timeout: 25_000, intervals: [1_000], message: '表示時刻が5秒以上進みません' }).toBeGreaterThanOrEqual(5);
+    const { seconds } = await readCurrentClock(observer);
+    progress = playbackProgress(progress, seconds, performance.now());
+    return progress.complete;
+  }, { timeout: 25_000, intervals: [1_000], message: '5秒の実経過と3回以上の段階的な再生位置の増加を確認できません' }).toBe(true);
   await clickDriveControl(frame, 'pause');
   // 一時停止ボタンが再生へ戻ったことと、複数回の表示時刻で停止を確認。
   await expect.poll(async () => {
     const controls = frame.getByRole('checkbox', { name: /^(再生|Play)$/i }).or(frame.getByRole('button', { name: /^(再生|Play)$/i }));
     return await controls.count();
   }, { timeout: 8_000 }).toBeGreaterThan(0);
-  const pauseSeconds = firstPlaybackSeconds(await visibleClock(frame));
-  expect(pauseSeconds).not.toBeNull();
+  const pauseSeconds = (await readCurrentClock(observer)).seconds;
   for (let i = 0; i < 3; i++) {
     await page.waitForTimeout(1_000);
     await expect(player).toBeVisible();
-    const now = firstPlaybackSeconds(await visibleClock(frame));
+    const now = (await readCurrentClock(observer)).seconds;
     expect(now, '一時停止後も表示時刻が進んでいます').toBe(pauseSeconds);
   }
-  await record(testInfo, `有料音声・${category}`, 'passed', { title, startSeconds: start, progressedToSeconds: lastSeconds, pausedAtSeconds: pauseSeconds });
+  await record(testInfo, `有料音声・${category}`, 'passed', { title, clockSource: initial.kind, startSeconds: start,
+    progressedToSeconds: progress.lastSeconds, elapsedMs: Math.round(performance.now() - startedAt), increases: progress.increases, pausedAtSeconds: pauseSeconds });
+  await observer.dispose();
   await page.locator('#audio-close').click();
   await expect(player).toBeHidden();
 }

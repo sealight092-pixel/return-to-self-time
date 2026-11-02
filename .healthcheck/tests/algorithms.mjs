@@ -61,3 +61,24 @@ export function firstPlaybackSeconds(text) {
   return matches[0].split(':').reduce((value, part) => value * 60 + Number(part), 0);
 }
 
+export function exactClockSeconds(text) {
+  const value = String(text ?? '').replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '').trim();
+  if (!/^\d{1,2}:\d{2}(?::\d{2})?$/.test(value)) return null;
+  return value.split(':').reduce((seconds, part) => seconds * 60 + Number(part), 0);
+}
+
+export function playbackProgress(state, seconds, now) {
+  if (seconds === null || !Number.isFinite(seconds)) throw new Error('現在の再生位置を取得できません');
+  const elapsedMs = now - state.startedAt;
+  if (seconds < state.lastSeconds) throw new Error('現在位置の観測値が逆行しました');
+  if (seconds - state.startSeconds > elapsedMs / 1000 + 2) {
+    throw new Error('現在位置が実経過時間を超えて飛びました。総時間の誤認は成功扱いにしません');
+  }
+  if (seconds - state.lastSeconds > (now - state.lastObservedAt) / 1000 + 2) {
+    throw new Error('現在位置の観測元が切り替わった可能性があります');
+  }
+  const increases = state.increases + (seconds > state.lastSeconds ? 1 : 0);
+  return { ...state, lastSeconds: seconds, lastObservedAt: now, increases,
+    complete: elapsedMs >= 5000 && seconds - state.startSeconds >= 5 && increases >= 3 };
+}
+

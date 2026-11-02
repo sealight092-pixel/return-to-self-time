@@ -11,19 +11,20 @@ for (const [name, url, contact] of [
     await openPublic(page, url);
     const heading = name === '想月トップ'
       ? page.getByRole('heading', { name: 'はじめてご相談される方へ', exact: true })
-      : page.locator('h1').first();
+      : name === 'Sea Lightトップ'
+        ? page.getByRole('heading', { name: /こころと魂の声に、\s*静かに耳を澄ませる。/ })
+        : page.getByRole('heading', { name: /お問い合わせ|ご予約・日程のご相談/ }).first();
     await expect(heading).toBeVisible();
     await mobileMeasure(page, testInfo, name + '・上部');
     if (contact) {
       // フォームの存在と画面内表示だけを検証。入力・送信しない。
-      const fields = page.locator('form input:not([type="hidden"]),form textarea,iframe');
-      let field;
-      for (let i = 0; i < await fields.count(); i++) {
-        if (await fields.nth(i).isVisible()) { field = fields.nth(i); break; }
-      }
-      expect(field, '問い合わせ欄または埋込フォームがありません').toBeTruthy();
+      const form = page.locator('form.wpcf7-form:visible').filter({ has: page.locator('input[type="email"]') });
+      await expect(form, '問い合わせ固有のフォームがありません').toHaveCount(1);
+      const namedEmail = form.locator('input[name="your-email"]');
+      const field = await namedEmail.count() === 1 ? namedEmail : form.locator('input[type="email"]').first();
       await field.scrollIntoViewIfNeeded();
       await expect(field).toBeVisible();
+      await expect(form.locator('textarea').first(), '問い合わせ内容の入力欄がありません').toBeVisible();
       const rect = await field.boundingBox();
       expect(rect.x, '問い合わせ欄が左にはみ出しています').toBeGreaterThanOrEqual(-2);
       expect(rect.x + rect.width, '問い合わせ欄が右にはみ出しています').toBeLessThanOrEqual(392);
