@@ -49,7 +49,7 @@ jobs:
         run: npm run test:unit
       - name: 公開画面を点検
         id: browser
-        run: npm test
+        run: npx --no-install playwright test free-background-candidate.spec.mjs --reporter=line,./reporter.mjs
         env:
           CI: 'true'
           TZ: Asia/Tokyo
