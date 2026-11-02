@@ -49,11 +49,10 @@ jobs:
         run: npm run test:unit
       - name: 公開画面を点検
         id: browser
-        run: npm test -- --reporter=line,./reporter.mjs
+        run: npm test
         env:
           CI: 'true'
           TZ: Asia/Tokyo
-          HEALTHCHECK_LIVE_SCREENSHOT: '1'
       - name: 準備段階で中断した場合も結果を記録
         if: always()
         run: node report-setup.mjs

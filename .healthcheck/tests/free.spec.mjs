@@ -35,7 +35,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 740 }
       for (let i = 0; i < answers.length; i++) await page.locator(`#q${i + 1}`).fill(answers[i]);
       await checkWidth('入力画面');
 
-      let lowerScreenshot;
       for (const [label, selector] of [
         ['Q3外側', '#q3'], ['保存欄外側', '.save-note'], ['最下部外側', '.opt-out-bottom'],
       ]) {
@@ -58,7 +57,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 740 }
         await record(testInfo, `無料アプリ本番・${label}`, 'passed', { source: 'live', viewport, rgb, ...metrics });
         if (label === '最下部外側') {
           expect(metrics.scrollY, '下部へのスクロールを確認できません').toBeGreaterThan(0);
-          lowerScreenshot = image;
         }
       }
       await checkWidth('最下部');
@@ -79,15 +77,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 740 }
         source: 'live', viewport, answersVerified: 3, entries: 1, syntheticDataOnly: true,
       });
 
-      // 公開後の検証branchで一度だけ明示的に有効化する。恒久dailyは環境変数を設定しない。
-      // stdoutを表示する今回のCLI指定: --reporter=line,./reporter.mjs
-      if (process.env.HEALTHCHECK_LIVE_SCREENSHOT === '1' && viewport.width === 390) {
-        process.stdout.write('BACKGROUND_FIX_LIVE_METADATA=' + JSON.stringify({
-          source: 'live', candidatePreview: false, contentType: 'image/png', viewport, url: URLS.free,
-          description: '実際の公開無料アプリを開いた下部表示。応答・CSSの差し替えなし。',
-        }) + '\n');
-        process.stdout.write('BACKGROUND_FIX_LIVE_SCREENSHOT_BASE64=' + lowerScreenshot.toString('base64') + '\n');
-      }
       // 個人記録を取り込まない空contextはfixtureの終了時に破棄する。
     });
   });
