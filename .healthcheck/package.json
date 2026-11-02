@@ -1,0 +1,13 @@
+{
+  "name": "sogetsu-sealight-browser-health",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:unit": "node --test tests/helpers.unit.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}
