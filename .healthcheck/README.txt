@@ -1,46 +1,50 @@
-公開サイトとアプリの点検（導入レビュー用）
+公開サイトとアプリの毎日点検
 
-このフォルダと.github/workflows/browser-health.ymlを既存リポジトリに追加する構成です。
-アプリ本体は変更しません。現時点ではローカル保存のみ、実ブラウザ/CIは未実行です。
+このフォルダと.github/workflows/browser-health.ymlが公開4サービスを点検します。
+アプリ本体のファイル、利用者の記録や認証情報は変更しません。
+
+毎日の実行
+・GitHubの補助テスト：毎日08:45 JST（23:45 UTC）。
+・専用クラウドチャット：毎日09:00 JSTに、当日の実行結果と公開ページを確認。
+・新しい不具合、既存不具合の悪化、点検の停止だけを通知。正常時の定例通知はしません。
+・PRの点検ファイル変更時と手動実行にも対応。PR内のscheduleはmain反映後に有効です。
 
 内容
 ・390×844、Asia/Tokyo、公式Chrome。test/再試行ごとに空のブラウザ環境を作ります。
-・想月とSea Lightのトップ/問い合わせ：横はみ出し、表示、問い合わせ欄を確認。送信なし。
+・想月とSea Lightのトップと問い合わせ：横はみ出し、表示、問い合わせ専用欄を確認。送信なし。
 ・無料：3回答を保存し、再読込後に履歴詳細から同じ内容を確認。
 ・有料：当日記録を保存し、再読込後に同じ内容を確認。
-・有料音声：瞑想/ストーリー各1本を埋込再生UIで操作します。現在位置の同じDOM要素を固定し、
-  実経過5秒以上・3回以上の段階的増加・増加が実経過＋2秒以内を同時に確認します。
-  総時間への飛びは拒否し、プレーヤー維持と一時停止後3回の同じ時刻の確認も行います。
-・Googleのログイン要求/CAPTCHA等は回避しません。検証不能なら失敗です。
-・無料の下部余白が白くなる既知症状は実画面の画素とCSS/高さを照合してknown_issueに記録。
-  この特定症状だけは失敗通知対象から除外し、その他の表示/保存/再生失敗は失敗にします。
+・有料音声：瞑想とストーリー各1本をアプリ内の埋込再生UIで操作。
+  同じ現在位置の要素を監視し、5秒以上の実経過、3回以上の段階的増加、
+  実経過＋2秒を超えないこと、再生画面の維持、一時停止後の時刻停止を確認します。
+・Googleの認証要求、CAPTCHA、アクセス制限は回避せず、検証不能は失敗として記録。
+・無料アプリの下部余白が白くなる症状は、画素とCSS/高さが一致した場合だけknown_issueに記録。
+  この確認済み症状を毎日新規通知せず、ほかの表示、保存、再生の失敗は失敗にします。
 
-出力
-stdoutのHEALTHCHECK_RESULT=一行JSONとGitHub job summary。再試行の失敗も残します。
-依存関係・Chrome準備・補助テストで中断した場合も、alwaysステップが未完了結果を残します。
-token、認証情報、個人記録は出しません。artifact/trace/動画/画像のアップロードはありません。
+出力と費用
+stdoutのHEALTHCHECK_RESULT=一行JSONとGitHub job summary。
+準備段階の中断も結果に残します。再試行で成功した場合も初回失敗を記録します。
+token、認証情報、個人記録を出さず、artifact、trace、動画、画像、キャッシュをアップロードしません。
 画素確認に使うスクリーンショットはメモリ内だけで破棄します。
+公開repoの標準runner計算は無料。larger runnerは使いません。
 
-導入順
-1. 固定Playwright 1.64.1でPRと手動の実行結果を確認します。
-   PR検証中はdailyが未有効です。定期実行はdefault branch（main）への反映後に動きます。
-2. lock未生成時は公式npmからnpm install --ignore-scriptsで取得し、
-   HEALTHCHECK_PACKAGE_LOCK=として完全なlock JSONをstdoutへ出します。
-3. そのJSONをpackage-lock.jsonとしてコミットすると、次から自動でnpm ciになります。
-4. 最終CIを確認してmainへ反映後、GitHub補助テストは毎日23:45 UTC
-   （日本時間翌日08:45）に実行します。PR検証用branchの段階では定期実行しません。
-5. controllerのクラウド点検は毎日09:00 JST。08:45予定のGitHub補助テストの結果と
-   最終実行日時も確認し、継続する失敗・未実行だけ通知します。
-   初回失敗→1回の再試行で成功したflaky結果はJSONに残し、失敗通知は出しません。
+導入時の検証
+2026-11-02の最終CIで、8項目が再試行なしに通過しました。
+https://github.com/sealight092-pixel/return-to-self-time/actions/runs/41410156443
+瞑想・ストーリーは現在位置0→5秒、約9秒の観測、5回の増加、一時停止を確認。
+既知の無料アプリ下部白背景はknown_issueとして記録され、未解決のままです。
+Playwright 1.64.1とpackage-lock.jsonで依存関係を固定しています。
 
-実行上限はjob全体10分、テスト全体7分、各testの再試行は1回です。
-公開repoの標準runner計算は無料。larger runnerとartifact/cache保存は使いません。
-GitHub scheduleは遅延/欠落し得て、公開repoは60日活動がないと自動停止し得ます。
-390pxのChrome模擬表示であり、実機の音の聞こえ方、Safari/PWA実機起動は保証しません。
-
-ローカルにnpmがある場合：npm ci（初回lockなしはnpm install --ignore-scripts）
-→ npx --no-install playwright install --with-deps chrome → npm run test:unit → npm test
-この環境ではnpm未搭載のため依存取得/ブラウザ実行は行っていません。
+実行方法と停止
+npm ci --ignore-scripts --no-audit --no-fund
+npx --no-install playwright install --with-deps chrome
+npm run test:unit
+npm test
+GitHub Actionsの当該ワークフローをDisable workflowで停止できます。
+job全体10分、テスト全体7分、各testの再試行は1回までです。
+GitHub scheduleは遅延や欠落があり、公開repoは60日活動がないと自動停止する場合があります。
+クラウド点検で最終実行日時も確認し、停止や未完了を正常扱いにしません。
+390pxはスマホ相当のChrome表示で、Safariや実機PWA起動、端末スピーカーの品質確認は含みません。
 
 公式資料
 https://playwright.dev/docs/browser-contexts
