@@ -85,6 +85,7 @@ async function captureCurrentClock(frame) {
   // 現在位置のDOM要素を一度だけ捕まえ、再生・停止で同じ要素を読み続ける。
   // body全体の「最初の時刻」を毎回選び直すと総時間への取り違えが起こるため行わない。
   return frame.evaluateHandle(() => {
+    if (!document.body) return null;
     const visible = element => {
       const rect = element.getBoundingClientRect();
       const css = getComputedStyle(element);
@@ -172,12 +173,32 @@ export async function checkAudio(page, testInfo, category, title) {
   await mobileMeasure(page, testInfo, `有料アプリ・${category}プレーヤー`);
   const frame = await (await iframe.elementHandle()).contentFrame();
   expect(frame, 'Google Drive埋込フレームがありません').not.toBeNull();
+  const previewUrl = await iframe.getAttribute('src');
+  // contentFrame()はabout:blank段階でも返る。正式なpreview文書の準備を待つ。
+  await frame.waitForURL(previewUrl, { waitUntil: 'domcontentloaded', timeout: 25_000 });
   let observer;
   await expect.poll(async () => {
-    const candidate = await captureCurrentClock(frame);
-    if (await candidate.evaluate(value => value !== null)) { observer = candidate; return true; }
-    await candidate.dispose();
-    return false;
+    try {
+      const candidate = await captureCurrentClock(frame);
+      if (await candidate.evaluate(value => value !== null)) { observer = candidate; return true; }
+      await candidate.dispose();
+      return false;
+    } catch (error) {
+      const contextDestroyed = value => /Execution context (?:was )?destroyed/.test(String(value?.message ?? value));
+      if (!contextDestroyed(error)) throw error;
+      let documentReady;
+      try {
+        documentReady = await frame.evaluate(expectedUrl =>
+          location.href === expectedUrl && document.readyState !== 'loading' && Boolean(document.body), previewUrl);
+      } catch (readyError) {
+        if (!contextDestroyed(readyError)) throw readyError;
+        documentReady = false;
+      }
+      // 初期ナビゲーション中だけ再観測する。準備後・observer確定後の消失は失敗のまま。
+      if (documentReady) throw error;
+      await frame.waitForURL(previewUrl, { waitUntil: 'domcontentloaded', timeout: 25_000 });
+      return false;
+    }
   }, { timeout: 25_000, message: '現在位置と総時間を区別できません（認証は回避しません）' }).toBe(true);
   const initial = await readCurrentClock(observer);
   const start = initial.seconds;

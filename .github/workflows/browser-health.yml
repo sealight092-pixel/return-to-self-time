@@ -2,12 +2,15 @@ name: 公開サイトとアプリのブラウザ点検
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '45 23 * * *'
   pull_request:
     paths:
       - '.healthcheck/**'
       - '.github/workflows/browser-health.yml'
 
-# 初回の手動実行を確認してから、管理者が23:45 UTC（翌日08:45 JST）を追加する。
+# 補助テストは08:45 JST、専用クラウドチャットは09:00 JSTに最新結果を確認する。
+# scheduleは既定ブランチへ入った後に有効になる。
 permissions:
   contents: read
 

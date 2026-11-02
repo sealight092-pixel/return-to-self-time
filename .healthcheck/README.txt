@@ -22,13 +22,13 @@ token、認証情報、個人記録は出しません。artifact/trace/動画/�
 画素確認に使うスクリーンショットはメモリ内だけで破棄します。
 
 導入順
-1. 固定Playwright 1.64.1で初回PRを実行。これは初回確認用の設定で、
-   workflowはPR＋手動だけです。daily/scheduleはまだ有効化しません。
+1. 固定Playwright 1.64.1でPRと手動の実行結果を確認します。
+   PR検証中はdailyが未有効です。定期実行はdefault branch（main）への反映後に動きます。
 2. lock未生成時は公式npmからnpm install --ignore-scriptsで取得し、
    HEALTHCHECK_PACKAGE_LOCK=として完全なlock JSONをstdoutへ出します。
 3. そのJSONをpackage-lock.jsonとしてコミットすると、次から自動でnpm ciになります。
-4. 実行結果を確認してから、GitHub補助テストを毎日23:45 UTC（日本時間翌日08:45）に
-   実行するscheduleを追加する予定です。現在はこの定期実行を設定していません。
+4. 最終CIを確認してmainへ反映後、GitHub補助テストは毎日23:45 UTC
+   （日本時間翌日08:45）に実行します。PR検証用branchの段階では定期実行しません。
 5. controllerのクラウド点検は毎日09:00 JST。08:45予定のGitHub補助テストの結果と
    最終実行日時も確認し、継続する失敗・未実行だけ通知します。
    初回失敗→1回の再試行で成功したflaky結果はJSONに残し、失敗通知は出しません。
