@@ -34,13 +34,7 @@ jobs:
           node-version: '24'
       - name: 固定版の依存関係を準備
         id: dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci --ignore-scripts --no-audit --no-fund
-          else
-            npm install --ignore-scripts --no-audit --no-fund
-            node -e 'process.stdout.write("HEALTHCHECK_PACKAGE_LOCK=" + JSON.stringify(JSON.parse(require("node:fs").readFileSync("package-lock.json", "utf8"))) + "\n")'
-          fi
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: 公式Chromeを準備
         id: chrome
         run: npx --no-install playwright install --with-deps chrome
