@@ -9,11 +9,14 @@ for (const [name, url, contact] of [
 ]) {
   test(name, async ({ page }, testInfo) => {
     await openPublic(page, url);
+    const contactHeading = url === URLS.sealightContact
+      ? 'ご質問・ご相談・ご予約'
+      : /お問い合わせ|ご予約・日程のご相談/;
     const heading = name === '想月トップ'
       ? page.getByRole('heading', { name: 'はじめてご相談される方へ', exact: true })
       : name === 'Sea Lightトップ'
         ? page.getByRole('heading', { name: /こころと魂の声に、\s*静かに耳を澄ませる。/ })
-        : page.getByRole('heading', { name: /お問い合わせ|ご予約・日程のご相談/ }).first();
+        : page.getByRole('heading', { name: contactHeading, exact: true }).first();
     await expect(heading).toBeVisible();
     await mobileMeasure(page, testInfo, name + '・上部');
     if (contact) {
