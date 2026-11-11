@@ -486,6 +486,7 @@ function saveJournal() {
   const restoreButton = document.getElementById('btn-restore-journal-for-update');
   if (restoreButton) restoreButton.hidden = true;
   showToast('保存しました');
+  applyAppUpdate();
 }
 
 function nextPrompt() {
@@ -587,6 +588,7 @@ function closeAudio() {
   if (frame) frame.src = '';
   if (player) player.classList.add('hidden');
   document.querySelector('.app-main').classList.remove('audio-open');
+  applyAppUpdate();
 }
 
 /* =============================================
@@ -619,7 +621,6 @@ function escAttr(str) {
    イベントリスナー設定
    ============================================= */
 function setupListeners() {
-  setupAppUpdateControls();
   document.getElementById('btn-open-release')?.addEventListener('click', openReleaseAudio);
   document.getElementById('release-audio-entry')?.addEventListener('click', openReleaseAudio);
   document.getElementById('btn-dismiss-release')?.addEventListener('click', () => {
@@ -680,12 +681,15 @@ function setupListeners() {
 /* =============================================
    最新の内容を確認・画面を安全に更新
    ============================================= */
-const APP_SHELL_VERSION = 'small-room-v13';
+const APP_SHELL_VERSION = 'small-room-v14';
 const appUpdateState = {
   registrationPromise: null,
   checking: null,
   ready: false,
   lastCheck: 0,
+  targetVersion: null,
+  applying: null,
+  navigating: false,
 };
 let journalSavedValue = '';
 let journalSessionEdited = false;
@@ -699,15 +703,18 @@ function renderAppUpdateNotice(message) {
   const notice = document.getElementById('app-update-notice');
   if (notice) notice.hidden = !appUpdateState.ready;
   const text = document.getElementById('app-update-message');
-  if (text) text.textContent = message || '新しい画面の準備ができました。「最新の画面に更新」を押してください。';
+  if (text) text.textContent = message || '新しい画面の準備ができました。安全なタイミングで自動で切り替わります。';
 }
 
 function receiveAppVersion(event) {
   if (event.data?.type !== 'SELF_CARE_APP_VERSION') return;
-  if (event.data.version && event.data.version !== APP_SHELL_VERSION) {
+  const versionNumber = /^small-room-v(\d+)$/.exec(event.data.version || '');
+  if (versionNumber && Number(versionNumber[1]) > Number(APP_SHELL_VERSION.replace('small-room-v', ''))) {
     appUpdateState.ready = true;
+    appUpdateState.targetVersion = event.data.version;
     renderAppUpdateNotice();
-    setAppUpdateCheckStatus('新しい画面があります。画面上部の「最新の画面に更新」を押してください。');
+    setAppUpdateCheckStatus('新しい画面があります。安全なタイミングで自動で切り替わります。');
+    applyAppUpdate();
   }
 }
 
@@ -732,7 +739,7 @@ async function checkAppUpdates({ manual = false, refreshData = true } = {}) {
     if (appUpdateState.ready) {
       renderAppUpdateNotice();
       if (manual) {
-        setAppUpdateCheckStatus('新しい画面があります。画面上部の「最新の画面に更新」を押してください。');
+        setAppUpdateCheckStatus('新しい画面があります。安全なタイミングで自動で切り替わります。');
         document.getElementById('app-update-notice')?.scrollIntoView?.({ block: 'start', behavior: 'instant' });
       }
       return;
@@ -756,24 +763,43 @@ async function checkAppUpdates({ manual = false, refreshData = true } = {}) {
 }
 
 function applyAppUpdate() {
-  if (!appUpdateState.ready) return;
+  if (!appUpdateState.ready || appUpdateState.applying || appUpdateState.navigating || document.hidden) return;
   const restoreButton = document.getElementById('btn-restore-journal-for-update');
   if (restoreButton) restoreButton.hidden = true;
   const player = document.getElementById('audio-player');
   if (player && !player.classList.contains('hidden')) {
-    renderAppUpdateNotice('音声はそのままお聴きいただけます。聴き終えて音声の「閉じる」を押してから、「最新の画面に更新」を押してください。');
+    renderAppUpdateNotice('新しい画面を準備しています。音声を閉じると自動で切り替わります。');
     return;
   }
   if (journalSessionEdited) {
     const isEmpty = document.getElementById('journal-entry')?.value === '';
     if (restoreButton) restoreButton.hidden = !isEmpty;
     renderAppUpdateNotice(isEmpty
-      ? 'ジャーナルが空欄になっています。「保存済みの文章に戻す」を押してから、「最新の画面に更新」を押してください。'
-      : '書きかけのジャーナルがあります。「ジャーナル」で「保存する」を押してから、「最新の画面に更新」を押してください。');
+      ? 'ジャーナルが空欄になっています。「保存済みの文章に戻す」を押すと、自動で新しい画面に切り替わります。'
+      : '書きかけのジャーナルを保護しています。「保存する」を押すと、自動で新しい画面に切り替わります。');
     return;
   }
-  // 自動では再読み込みしない。保存済みの記録は端末に残る。
-  window.location.reload();
+  appUpdateState.applying = (async () => {
+    // 旧SWのキャッシュ優先やHTMLだけ古い状態を避ける。
+    // 新しいHTMLの取得を確認できないときは現在の画面を保持する。
+    const version = appUpdateState.targetVersion || APP_SHELL_VERSION;
+    const url = new URL('index.html', window.location.href);
+    url.searchParams.set('app-shell', version);
+    try {
+      const response = await fetch(url.href, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Shell unavailable');
+      const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+      if (html.querySelector('meta[name="app-shell-version"]')?.content !== version) return;
+      // 通信中に入力や再生が始まった場合も保護する。
+      if (document.hidden || journalSessionEdited ||
+          !document.getElementById('audio-player')?.classList.contains('hidden')) return;
+      appUpdateState.navigating = true;
+      window.location.replace(url.href);
+    } catch (_) {
+      renderAppUpdateNotice('接続できるようになると、安全なタイミングで自動更新します。');
+    }
+  })().finally(() => { appUpdateState.applying = null; });
+  return appUpdateState.applying;
 }
 
 function setupAppUpdateControls() {
@@ -795,14 +821,19 @@ function setupAppUpdateControls() {
     const restoreButton = document.getElementById('btn-restore-journal-for-update');
     if (restoreButton) restoreButton.hidden = true;
     renderAppUpdateNotice();
+    applyAppUpdate();
   });
   document.getElementById('journal-entry')?.addEventListener('input', event => {
     journalSessionEdited = event.target.value !== journalSavedValue;
     const restoreButton = document.getElementById('btn-restore-journal-for-update');
     if (restoreButton && (!journalSessionEdited || event.target.value !== '')) restoreButton.hidden = true;
+    if (!journalSessionEdited) applyAppUpdate();
   });
   const checkAfterReturn = () => {
-    if (!document.hidden) checkAppUpdates();
+    if (!document.hidden) {
+      applyAppUpdate();
+      checkAppUpdates();
+    }
   };
   document.addEventListener('visibilitychange', checkAfterReturn);
   window.addEventListener('pageshow', checkAfterReturn);
@@ -834,11 +865,18 @@ function registerSW() {
    初期化
    ============================================= */
 async function init() {
+  // データ取得を待つ間の入力も追跡する。
+  setupAppUpdateControls();
   await loadData();
   setupListeners();
   startBreathing();
   renderHome();
   registerSW();
+  if (document.querySelector('meta[name="app-shell-version"]')?.content !== APP_SHELL_VERSION) {
+    appUpdateState.ready = true;
+    appUpdateState.targetVersion = APP_SHELL_VERSION;
+    applyAppUpdate();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -1229,5 +1267,7 @@ if (skipBreathingBtn) {
     }
   }, 1800);
 });
+
+
 
 
