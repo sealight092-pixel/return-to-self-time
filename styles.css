@@ -1988,3 +1988,49 @@ header {
 }
 
 
+
+/* 日付ごとに読むジャーナル */
+.journal-history {
+  margin-top: 24px;
+  border: 1px solid #9bbeb7;
+  border-radius: 18px;
+  background: #f4faf7;
+  color: #35564c;
+}
+.journal-history summary {
+  min-height: 48px;
+  padding: 16px;
+  cursor: pointer;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.journal-history summary:focus-visible {
+  outline: 3px solid #376d80;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+.journal-history-heading { font-size: 17px; font-weight: 700; }
+#journal-history-count { display: inline-block; font-size: 14px; font-weight: 400; }
+.journal-history-note,
+.journal-history-message {
+  margin: 0;
+  padding: 0 16px 16px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.journal-history-item {
+  margin: 0 12px 12px;
+  border: 1px solid #d0ded7;
+  border-radius: 12px;
+  background: #fff;
+}
+.journal-history-item summary { font-size: 16px; font-weight: 700; }
+.journal-history-text {
+  margin: 0;
+  padding: 0 16px 18px;
+  color: #3b3934;
+  font-size: 16px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

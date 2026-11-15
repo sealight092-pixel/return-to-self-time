@@ -1,4 +1,4 @@
-const CACHE = 'small-room-v13';
+const CACHE = 'small-room-v14';
 
 const PRECACHE = [
   './', './index.html', './styles.css', './app.js', './manifest.json',
