@@ -451,6 +451,7 @@ async function openReleaseAudio() {
    ジャーナル
    ============================================= */
 function renderJournal() {
+  renderJournalHistory();
   if (data.journalPrompts.length > 0) {
     currentPromptIndex = Math.floor(Math.random() * data.journalPrompts.length);
     showCurrentPrompt();
@@ -485,6 +486,7 @@ function saveJournal() {
   journalSessionEdited = false;
   const restoreButton = document.getElementById('btn-restore-journal-for-update');
   if (restoreButton) restoreButton.hidden = true;
+  renderJournalHistory();
   showToast('保存しました');
 }
 
@@ -499,12 +501,62 @@ function todayKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function exportJournal() {
-  const entries = Object.keys(localStorage)
+function getJournalEntries() {
+  return Object.keys(localStorage)
     .filter(key => /^journal-\d{4}-\d{2}-\d{2}$/.test(key))
     .map(key => ({ date: key.replace('journal-', ''), text: localStorage.getItem(key) }))
     .filter(entry => entry.text && entry.text.trim())
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function renderJournalHistory() {
+  const list = document.getElementById('journal-history-list');
+  const count = document.getElementById('journal-history-count');
+  if (!list) return;
+  const openDates = new Set(
+    Array.from(list.querySelectorAll('details[open]')).map(item => item.dataset.date)
+  );
+  list.replaceChildren();
+  let entries;
+  try {
+    entries = getJournalEntries();
+  } catch (_) {
+    if (count) count.textContent = '';
+    const message = document.createElement('p');
+    message.className = 'journal-history-message';
+    message.textContent = '記録を読み込めませんでした。このブラウザの保存設定を確認してください。';
+    list.appendChild(message);
+    return;
+  }
+  if (count) count.textContent = entries.length + '日分';
+  if (entries.length === 0) {
+    const message = document.createElement('p');
+    message.className = 'journal-history-message';
+    message.textContent = 'まだ保存した記録はありません。上の「保存する」を押すと、ここに日付ごとに表示されます。';
+    list.appendChild(message);
+    return;
+  }
+  entries.forEach(entry => {
+    const item = document.createElement('details');
+    item.className = 'journal-history-item';
+    item.dataset.date = entry.date;
+    item.open = openDates.has(entry.date);
+    const summary = document.createElement('summary');
+    const date = document.createElement('time');
+    date.dateTime = entry.date;
+    const [year, month, day] = entry.date.split('-').map(Number);
+    date.textContent = year + '年' + month + '月' + day + '日';
+    summary.appendChild(date);
+    const text = document.createElement('p');
+    text.className = 'journal-history-text';
+    text.textContent = entry.text;
+    item.append(summary, text);
+    list.appendChild(item);
+  });
+}
+
+function exportJournal() {
+  const entries = getJournalEntries();
 
   if (entries.length === 0) {
     showToast('まだ記録がありません');
@@ -680,7 +732,7 @@ function setupListeners() {
 /* =============================================
    最新の内容を確認・画面を安全に更新
    ============================================= */
-const APP_SHELL_VERSION = 'small-room-v13';
+const APP_SHELL_VERSION = 'small-room-v14';
 const appUpdateState = {
   registrationPromise: null,
   checking: null,
